@@ -1,15 +1,23 @@
 <?php 
 
+define('R_SERVE_HOST','134.157.220.27'); 
+
 require '../Connection.php';
 
-$r = new Rserve_Connection();
+try { 
 
-$r->evalString('a=rpois(100,100); b=rpois(100,100)');
+    echo 'Connecting to Rserve '.R_SERVE_HOST;
+    $r = new Rserve_Connection(R_SERVE_HOST);
 
-$x = $r->evalString('chisq.test(table(a,b))', FALSE);
+    $r->evalString('a=rpois(100,100); b=rpois(100,100)');
 
-echo '<style>'.file_get_contents('rexp.css').'</style>';
-echo $x->toHTML();
+    $x = $r->evalString('chisq.test(table(a,b))', FALSE);
 
-$r->close();
+    echo '<style>'.file_get_contents('rexp.css').'</style>';
+    echo $x->toHTML();
+
+    $r->close();
+} catch(Exception $e) {
+    echo $e;
+}
 ?>
