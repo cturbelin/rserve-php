@@ -1,0 +1,43 @@
+Rserve-php
+==========
+
+php5 client for Rserve http://www.rforge.net/Rserve/ (a TCP/IP server for R statistical software)
+
+Files Description 
+-------------------
+
+* Connection.php : main class Rserve_Connection, you only need to manipulate an instance of this class (evalString method for now)
+* funclib.php : function librairies 
+* Parser.php : Parser class used to Parse Rserve binary packets to php structures (native array or REXP children)
+* RNative.php : an array wrapper used to catch attributes (experimental, usefull ?)
+* REXP/*.php : R expression classes
+
+Tests
+-----
+
+You can run tests using phpunit
+
+* Create a file config.php in the "tests" directory (copy config.php.sample)
+* define the constant RSERVE_HOST with the address of your Rserve server (custom port not supported yet)
+* run tests
+  . phpunit tests\ParserNativeTest.php
+
+
+Usage
+---------
+
+The use of the library is simple
+
+1. create an instance of Rserve_Connection
+
+  $cnx = new Rserve_Connection('myserverhost');
+
+2. Send R commands and get the results as Php array
+
+  $result = $cnx->evalString('x ="Hello world !"; x');
+
+Contacts
+--------
+Clément Turbelin, clement.turbelin@gmail.com
+http://www.sentiweb.fr
+Université Pierre et Marie Curie - Paris 6, France

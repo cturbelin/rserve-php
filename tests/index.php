@@ -1,7 +1,8 @@
 <?php 
-
-define('R_SERVE_HOST','134.157.220.27'); 
-
+/**
+* Rserve-php example
+*/ 
+require_once 'config.php';
 require '../Connection.php';
 
 try { 
@@ -9,7 +10,8 @@ try {
     echo 'Connecting to Rserve '.R_SERVE_HOST;
     $r = new Rserve_Connection(R_SERVE_HOST);
 
-    $r->evalString('a=rpois(100,100); b=rpois(100,100)');
+    $x = $r->evalString('a=rpois(100,100); b=rpois(100,100)');
+    var_dump($x);
 
     $x = $r->evalString('chisq.test(table(a,b))', FALSE);
 
