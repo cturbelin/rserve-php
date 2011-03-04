@@ -44,11 +44,20 @@ class ParserNativeTest extends PHPUnit_Framework_TestCase {
             array('c(34.2, 45.5, 987.2, 22.1, 87.0, 345.0, 1E-6, 1E38)', 'float', array(34.2, 45.5, 987.2, 22.1, 87.0, 345.0, 1E-6, 1E38)),
             // character
             array('"TOTO is TOTO"', 'string', 'TOTO is TOTO'),
+            // character vector
+            array('c("TOTO is TOTO","Ohhhh","String2")', 'string', array("TOTO is TOTO","Ohhhh","String2")),
+
             // pairlist
             array('list("toto"=1,"titi"=2)',NULL, array('toto'=>1,'titi'=>2)),
-            // data.frame
-            array('data.frame("toto"=c(1,2,3),"titi"=c(2,2,3))',NULL, array('toto'=>array(1,2,3),'titi'=>array(2,2,3)) ),
 
+            // pairlist
+            array('list("toto"=1,"titi"=2, "tutu"="TOTO")', NULL, array('toto'=>1,'titi'=>2,'tutu'=>'TOTO')),
+
+            // data.frame : Caution with data.frame, use stringsAsFactors=F 
+            array('data.frame("toto"=c(1,2,3),"titi"=c(2,2,3),"tutu"=c("foo","bar","i need some sleep"), stringsAsFactors =F)', NULL, 
+                array('toto'=>array(1,2,3),'titi'=>array(2,2,3),'tutu'=>array('foo','bar','i need some sleep')) ),
+                
+            array('chisq.test(as.matrix(c(12,58,79,52),ncol=2))[c("statistic","p.value","expected")]',NULL, array('statistic'=>46.8209, 'p.value'=>3.794258e-10,'expected'=>array(50.25,50.25,50.25,50.25)), array('statistic'=>'round|4','p.value'=>'round|16')),
         );
     
     }
@@ -56,8 +65,12 @@ class ParserNativeTest extends PHPUnit_Framework_TestCase {
     
     /**
     * @dataProvider providerSimpleTests
+    * @param string $cmd R command
+    * @param string $type expected type 
+    * @param array $expected expected php structure
+    * @param array $filters filters to apply to the R result to fit the tests values, each filter is array(funcname, param1,...), or a string funcname|param1|param2...
     */
-    public function testSimpleTypes($cmd, $type, $expected) {
+    public function testSimpleTypes($cmd, $type, $expected, $filters=NULL) {
         $r = $this->rserve->evalString($cmd);
         if( is_array($expected) ) {
             $this->assertType('array',$r);
@@ -69,6 +82,19 @@ class ParserNativeTest extends PHPUnit_Framework_TestCase {
         } else {
             if( !is_null($type) ) {
                 $this->assertType($type, $r);
+            }
+        }
+        if( !is_null($filters) ) {
+            foreach($filters as $key=>$filter) {
+                if( is_string($filter) ) {
+                    $filter = explode('|',$filter);
+                }
+                $f = array_shift($filter);
+                if( !is_callable($f) ) {
+                    throw new Exception('Bad filter '.$f.' for '.$key);
+                }
+                $params = array_merge(array($r[$key]), $filter);
+                $r[$key] = call_user_func_array($f, $params);
             }
         }
         $this->assertEquals($r, $expected);
