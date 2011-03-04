@@ -17,6 +17,10 @@ require_once 'Parser.php';
  */
 class Rserve_Connection {
 
+    const PARSER_NATIVE = 0;
+    const PARSER_REXP = 1;
+    const PARSER_DEBUG = 2;
+    
 	const DT_INT = 1;
 	const DT_CHAR = 2;
 	const DT_DOUBLE = 3;
@@ -83,19 +87,22 @@ class Rserve_Connection {
 	 * initialization of the library
 	 */
 	public static function init() {
-		$m = pack('s', 1);
+		if( self::$init ) {
+            return;
+        }
+        $m = pack('s', 1);
 		self::$machine_is_bigendian = ($m[0] == 0);
 		spl_autoload_register('Rserve_Connection::autoload');
 		self::$init = TRUE;
 	}
 
 	public static function autoload($name) {
-		$s = strtolower(substr($name, 0,6));
+		$s = strtolower(substr($name, 0, 6));
 		if($s != 'rserve') {
 			return FALSE;
 		}
 		$s = substr($name, 7);
-		$s = str_replace('_','/',$s);
+		$s = str_replace('_', '/', $s);
 		$s .= '.php';
 		require $s;
 		return TRUE; 
@@ -140,7 +147,7 @@ class Rserve_Connection {
                 $this->auth_method = 'crypt';
             }
             if($attr[0] === 'K') {
-                $key = substr($attr,1,3);
+                $key = substr($attr, 1, 3);
             }
         }
 		$this->socket = $socket;
@@ -149,20 +156,28 @@ class Rserve_Connection {
 	/**
 	 * Evaluate a string as an R code and return result
 	 * @param string $string
-	 * @param boolean $asNative 
+	 * @param int $parser 
 	 * @param REXP_List $attr
 	 */
-	public function evalString($string, $asNative = TRUE, $attr=NULL) {
+	public function evalString($string, $parser = self::PARSER_NATIVE, $attr=NULL) {
 		$r = $this->command(self::CMD_eval, $string );
 		$i = 20;
 		if( !$r['is_error'] ) {
 			$buf = $r['contents'];
 			$r = NULL;
-			if($asNative) {
-				$r = Rserve_Parser::parse($buf, $i, &$attr);
-			} else {
-				$r = Rserve_Parser::parseREXP($buf, $i, &$attr);
-			}
+            switch($parser) {
+                case self::PARSER_NATIVE:
+                    $r = Rserve_Parser::parse($buf, $i, &$attr);
+                break;
+                case self::PARSER_REXP:
+                    $r = Rserve_Parser::parseREXP($buf, $i, &$attr);
+                break;
+                case self::PARSER_DEBUG:
+                    $r = Rserve_Parser::parseDebug($buf, $i, &$attr);
+                    break;
+                default:
+                    throw new Exception('Unknown parser');
+            }
 			return $r;
 		}
 		// TODO: contents and code in exception
