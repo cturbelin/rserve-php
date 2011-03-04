@@ -5,6 +5,7 @@
  * $Revision$
  * @author Clément TURBELIN
  * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
+ * $Id$
  */
 require_once 'funclib.php';
 require_once 'Parser.php';
@@ -146,33 +147,9 @@ class Rserve_Connection {
 	}
 
 	/**
-	 *
-	 * @param unknown_type $command
-	 * @param unknown_type $attr
-	 */
-	/*public function send($command, $attr = NULL) {
-		$pkt = _rserve_make_packet(3, $command);
-		socket_send($this->socket, $pkt, strlen($pkt), 0);
-		// RPacket
-		$r = _rserve_get_response($this->socket);
-		$res = int32($r);
-		$sc = ($res >> 24) & 127;
-		$rr = $res & 255;
-		if ($rr != 1) {
-		throw new Rserve_Exception('eval failed with error code ' . $sc);
-		}
-		if (int8($r, 16) != 10) {
-		throw new Rserve_Exception('invalid response (expecting SEXP)');
-		}
-		//
-		$i = 20;
-		return Rserve_Parser::parse($r, $i, &$attr);
-		}*/
-
-	/**
 	 * Evaluate a string as an R code and return result
 	 * @param string $string
-	 * @param boolean $asNative
+	 * @param boolean $asNative 
 	 * @param REXP_List $attr
 	 */
 	public function evalString($string, $asNative = TRUE, $attr=NULL) {
@@ -241,7 +218,7 @@ class Rserve_Connection {
 	 * Assign a value to a symbol in R
 	 * @param string $symbol name of the variable to set (should be compliant with R syntax !)
 	 * @param Rserve_REXP $value value to set
-	 */
+     Commented because not ready for this release
 	public function assign($symbol, $value) {
 		if(! is_object($symbol) and !$symbol instanceof Rserve_REXP_Symbol) {
 			$symbol = (string)$symbol;
@@ -253,8 +230,8 @@ class Rserve_Connection {
 		}
 		$contents .= Rserve_Parser::createBinary($s);
 		$contents .= Rserve_Parser::createBinary($value);
-		
 	}
+   	 */
 
 }
 

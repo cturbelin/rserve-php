@@ -587,6 +587,7 @@ class Rserve_Parser {
 	/**
 	 *
 	 * @param Rserve_REXP $value
+     * This function is not functionnal. Please use it only for testing
 	 */
 	public static function createBinary(Rserve_REXP $value) {
 		// Current offset
