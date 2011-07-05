@@ -26,10 +26,12 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 	}
 	
 	public function asCharacters() {
-		$l = $this->levels;
+		$levels = $this->levels;
+		$r = array();
 		foreach($this->values as $v) {
-			
-		}	
+			$r[] = $levels[$v];
+		}
+		return $r;
 	}
 	
 	public function getType() {

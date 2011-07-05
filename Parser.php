@@ -97,7 +97,12 @@ class Rserve_Parser {
 	/** used for transport only - has attribute */
 	const XT_HAS_ATTR = 128;
 
-    public static $use_array_object = FALSE;
+    
+	/**
+	* Global parameters to parse() function
+	* If true, use Rserve_RNative wrapper instead of native array to handle attributes
+	*/
+	public static $use_array_object = FALSE;
     
 	/**
 	 * parse SEXP results -- limited implementation for now (large packets and some data types are not supported)

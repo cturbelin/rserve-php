@@ -3,6 +3,8 @@ if ( !defined("PHPUnit_MAIN_METHOD") ) {
     define("PHPUnit_MAIN_METHOD", "ParserNativeTest::main");
 }
 
+require_once 'config.php';
+
 require_once "PHPUnit/Framework/TestCase.php";
 require_once "PHPUnit/Framework/TestSuite.php";
 
