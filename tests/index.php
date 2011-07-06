@@ -13,7 +13,7 @@ try {
     $x = $r->evalString('a=rpois(100,100); b=rpois(100,100)');
     var_dump($x);
 
-    $x = $r->evalString('chisq.test(table(a,b))', FALSE);
+    $x = $r->evalString('chisq.test(table(a,b))', Rserve_Connection::PARSER_REXP);
 
     echo '<style>'.file_get_contents('rexp.css').'</style>';
     echo $x->toHTML();
