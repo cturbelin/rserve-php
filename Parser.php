@@ -104,6 +104,12 @@ class Rserve_Parser {
 	*/
 	public static $use_array_object = FALSE;
     
+    /**
+    * Transform factor to native strings, only for parse() method
+    * If false, factors are parsed as integers
+    */
+    public static $factor_as_string = TRUE;
+    
 	/**
 	 * parse SEXP results -- limited implementation for now (large packets and some data types are not supported)
 	 * @param string $buf
@@ -202,6 +208,23 @@ class Rserve_Parser {
                 }
                 if (count($a) == 1) {
                     $a = $a[0];
+                }
+                // If factor, then transform to characters
+                if( self::$factor_as_string  and isset($attr['class']) ) {
+                    $c = $attr['class'];
+                    $is_factor = is_string($c) && ($c == 'factor');
+                    if($is_factor) {
+                        $n = count($a);
+                        $levels = $attr['levels'];
+                        for($k = 0; $k < $n; ++$k) {
+                            $i = $a[$k];
+                            if($i < 0) {
+                                $a[$k] = NULL;
+                            } else {
+                                $a[$k] = $levels[ $i -1];       
+                            }
+                        }
+                    }
                 }
             break;
             
@@ -309,7 +332,7 @@ class Rserve_Parser {
 		
 			$ra &= ~self::XT_HAS_ATTR;
 			$al = int24($r, $i + 1);
-			$attr = self::parse($buf, $i);
+			$attr = self::parseDebug($buf, $i);
 			$result['attr'] = $attr;
 			$i += $al + 4;
 		}
@@ -319,7 +342,7 @@ class Rserve_Parser {
 		if ($ra == self::XT_VECTOR) { // generic vector
 			$a = array();
 			while ($i < $eoa) {
-				$a[] = self::parse($buf, &$i);
+				$a[] = self::parseDebug($buf, &$i);
 			}
 			$result['contents'] = $a;			
 		}
@@ -332,13 +355,13 @@ class Rserve_Parser {
 		}
 		if ($ra == self::XT_LIST_NOTAG || $ra == self::XT_LANG_NOTAG) { // pairlist w/o tags
 			$a = array();
-			while ($i < $eoa) $a[] = self::parse($buf, &$i);
+			while ($i < $eoa) $a[] = self::parseDebug($buf, &$i);
 			$result['contents'] = $a;
 		}
 		if ($ra == self::XT_LIST_TAG || $ra == self::XT_LANG_TAG) { // pairlist with tags
 			$a = array();
 			while ($i < $eoa) {
-				$val = self::parse($buf, &$i);
+				$val = self::parseDebug($buf, &$i);
 				$tag = self::parse($buf, &$i);
 				$a[$tag] = $val;
 			}
@@ -404,7 +427,8 @@ class Rserve_Parser {
 			$result['contents'] = substr($r, $i, $len);
 		}
 		if($ra == self::XT_ARRAY_CPLX) {
-			// TODO: complex
+			$result['not_implemented'] = true;
+            // TODO: complex
 		}
 		if ($ra == 48) { // unimplemented type in Rserve
 			$uit = int32($r, $i);

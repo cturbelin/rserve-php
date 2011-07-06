@@ -20,6 +20,7 @@ class Rserve_Connection {
     const PARSER_NATIVE = 0;
     const PARSER_REXP = 1;
     const PARSER_DEBUG = 2;
+    const PARSER_NATIVE_WRAPPED = 3;
     
 	const DT_INT = 1;
 	const DT_CHAR = 2;
@@ -174,6 +175,12 @@ class Rserve_Connection {
                 break;
                 case self::PARSER_DEBUG:
                     $r = Rserve_Parser::parseDebug($buf, $i, &$attr);
+                    break;
+                case self::PARSER_NATIVE_WRAPPED:
+                        $old = Rserve_Parser::$use_array_object;
+                        Rserve_Parser::$use_array_object = TRUE;
+                        $r = Rserve_Parser::parse($buf, $i, &$attr);
+                        Rserve_Parser::$use_array_object = $old;
                     break;
                 default:
                     throw new Exception('Unknown parser');

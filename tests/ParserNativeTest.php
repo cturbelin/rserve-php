@@ -55,6 +55,9 @@ class ParserNativeTest extends PHPUnit_Framework_TestCase {
             // pairlist
             array('list("toto"=1,"titi"=2, "tutu"="TOTO")', NULL, array('toto'=>1,'titi'=>2,'tutu'=>'TOTO')),
 
+            // factors
+            array('factor(c("toto","titi","toto","tutu"))',NULL, array("toto","titi","toto","tutu")),
+            
             // data.frame : Caution with data.frame, use stringsAsFactors=F 
             array('data.frame("toto"=c(1,2,3),"titi"=c(2,2,3),"tutu"=c("foo","bar","i need some sleep"), stringsAsFactors =F)', NULL, 
                 array('toto'=>array(1,2,3),'titi'=>array(2,2,3),'tutu'=>array('foo','bar','i need some sleep')) ),
@@ -71,6 +74,8 @@ class ParserNativeTest extends PHPUnit_Framework_TestCase {
     * @param string $type expected type 
     * @param array $expected expected php structure
     * @param array $filters filters to apply to the R result to fit the tests values, each filter is array(funcname, param1,...), or a string funcname|param1|param2...
+    * @covers Rserve_Parser::parse
+    * @covers Rserve_Connection::evalString
     */
     public function testSimpleTypes($cmd, $type, $expected, $filters=NULL) {
         $r = $this->rserve->evalString($cmd);

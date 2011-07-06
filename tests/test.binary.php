@@ -1,6 +1,11 @@
 <?php
+/**
+* Ugly Test for REXP creation
+* Work in progress...
+*/
 
 require '../Connection.php';
+require_once 'config.php';
 
 function testBinary($values, $type, $options = array(), $msg = '') {
 	echo 'Test '.$type.' '.$msg.'<br/>';

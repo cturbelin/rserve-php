@@ -7,8 +7,8 @@ require '../Connection.php';
 
 try { 
 
-    echo 'Connecting to Rserve '.R_SERVE_HOST;
-    $r = new Rserve_Connection(R_SERVE_HOST);
+    echo 'Connecting to Rserve '.RSERVE_HOST;
+    $r = new Rserve_Connection(RSERVE_HOST);
 
     $x = $r->evalString('a=rpois(100,100); b=rpois(100,100)');
     var_dump($x);
