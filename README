@@ -12,6 +12,21 @@ Files Description
 * RNative.php : an array wrapper used to catch attributes (experimental, usefull ?)
 * REXP/*.php : R expression classes
 
+Maturity
+-----------------------
+
+The library provide several way to parse R structure ($parser parameted in evalString)
+
+- native php array : you get only the results in nested php array (without R attributes). It's a good way to handle simple R results.
+This feature is in beta and has unit tests
+
+- wrapped native php array : you get the results in a simple object (RNative) with results as php array and attributes.
+
+- Debug : full description of the Rserve protocole results
+
+- REXP: All R structures are wrapped in an REXP_* class
+This feature is in alpha: not very documented, tests in progress.
+
 Tests
 -----
 

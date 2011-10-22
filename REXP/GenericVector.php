@@ -13,7 +13,9 @@
 */
 class Rserve_REXP_GenericVector extends Rserve_REXP_Vector {
 	
-	public function isList() { return true; }
+	public function isList() { 
+        return true; 
+    }
 	
 	public function getType() {
 		return Rserve_Parser::XT_VECTOR;

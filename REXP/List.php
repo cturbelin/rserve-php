@@ -82,8 +82,9 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 		return $this->values[$i];
 	}
 
-	public function isList() { return TRUE; }
-
+	public function isList() { 
+		return TRUE; 
+	}
 
 	public function offsetExists($offset) {
 		if($this->is_named) {

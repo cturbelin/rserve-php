@@ -43,18 +43,53 @@ class Rserve_REXP {
 		return $this->attr;
 	}
 	
-	public function isVector() { return FALSE; }
-	public function isInteger() { return FALSE; }
-	public function isNumeric() { return FALSE; }
-	public function isLogical() { return FALSE; }
-	public function isString() { return FALSE; }
-	public function isSymbol() { return FALSE; }
-	public function isRaw() { return FALSE; }
-	public function isList() { return FALSE; }
-	public function isNull() { return FALSE; }
-	public function isLanguage() { return FALSE; }
-	public function isFactor() { return FALSE; }
-	public function isExpression() { return FALSE; }
+	public function isVector() { 
+		return FALSE; 
+	}
+	
+	public function isInteger() { 
+			return FALSE; 
+	}
+	
+	public function isNumeric() { 
+		return FALSE; 
+	}
+	
+	public function isLogical() {
+		 return FALSE; 
+	}
+	
+	public function isString() { 
+		return FALSE; 
+	}
+	
+	public function isSymbol() { 
+		return FALSE; 
+	}
+	
+	public function isRaw() { 
+		return FALSE; 
+	}
+	
+	public function isList() { 
+		return FALSE; 
+	}
+	
+	public function isNull() { 
+		return FALSE; 
+	}
+	
+	public function isLanguage() { 
+		return FALSE; 
+	}
+	
+	public function isFactor() { 
+		return FALSE; 
+	}
+	
+	public function isExpression() { 
+		return FALSE; 
+	}
 	
 	public function toHTML() {
 		return '<div class="rexp xt_'.$this->getType().'"><span class="typename">'.Rserve_Parser::xtName($this->getType()).'</span>'.$this->attrToHTML().'</div>';	

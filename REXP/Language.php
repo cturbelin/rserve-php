@@ -13,7 +13,9 @@
 */
 class Rserve_REXP_Language extends Rserve_REXP_List {
 	
-	public function isLanguage() { return TRUE; }
+	public function isLanguage() { 
+        return TRUE; 
+    }
 	
 	public function getType() {
 		return Rserve_Parser::XT_LANG;

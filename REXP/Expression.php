@@ -10,9 +10,11 @@
 
 class Rserve_REXP_Factor extends Rserve_REXP_GenericVector {
 	
-	public function isExpression() { return TRUE; }
+	public function isExpression() { 
+		return TRUE; 
+	}
 	
-		public function getType() {
+	public function getType() {
 		return Rserve_Parser::XT_VECTOR_EXP;
 	}
 	
