@@ -15,17 +15,17 @@ Files Description
 Maturity
 -----------------------
 
-The library provide several way to parse R structure ($parser parameted in evalString)
+The library provide several way to parse R structures ($parser parameter in evalString)
 
 - native php array : you get only the results in nested php array (without R attributes). It's a good way to handle simple R results.
 This feature is in beta and has unit tests
 
-- wrapped native php array : you get the results in a simple object (RNative) with results as php array and attributes.
+- wrapped native php array : you get the results in a simple object (RNative) with results as php array and you can access to R object attributes.
 
 - Debug : full description of the Rserve protocole results
 
 - REXP: All R structures are wrapped in an REXP_* class
-This feature is in alpha: not very documented, tests in progress.
+This feature is in alpha: not very documented, tests in progress. Only low level R structures are handled (data.frame is a GenericVector, etc..)
 
 Tests
 -----
@@ -36,7 +36,6 @@ You can run tests using phpunit
 * define the constant RSERVE_HOST with the address of your Rserve server (custom port not supported yet)
 * run tests
   . phpunit tests\ParserNativeTest.php
-
 
 Usage
 ---------
@@ -50,6 +49,8 @@ The use of the library is simple
 2. Send R commands and get the results as Php array
 
   $result = $cnx->evalString('x ="Hello world !"; x');
+
+This will produce a php array containing R results (using native array parser). Others parsers could be used by using $parser parameters (@see Rserve_Connection)
 
 Contacts
 --------

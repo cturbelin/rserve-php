@@ -39,6 +39,26 @@ class Rserve_REXP_Vector extends Rserve_REXP {
 	}
 	
 	/**
+	 * Return dimensions length of the vector
+	 * uses 'dim' attribute if exists or the length of the vector (one dimension vector)
+	 */
+	public function dim() {
+		$dim = $this->getAttribute('dim');
+		if( $dim ) {
+			return $dim->getValues();
+		}
+		return $this->length(); 
+	}
+	
+	/**
+	 * Matrix is a multidimensionnal vector 
+	 */
+	public function isMatrix() {
+		$dim = $this->dim();
+		return count($dim) > 1;
+	}
+	
+	/**
 	 * Get value 
 	 * @param unknown_type $index
 	 */

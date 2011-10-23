@@ -10,6 +10,7 @@
 
 /**
 * R Generic vector
+* Generic vector is used to handle complex structure like data.frame() or lists()
 */
 class Rserve_REXP_GenericVector extends Rserve_REXP_Vector {
 	
@@ -17,8 +18,5 @@ class Rserve_REXP_GenericVector extends Rserve_REXP_Vector {
         return true; 
     }
 	
-	public function getType() {
-		return Rserve_Parser::XT_VECTOR;
-	}
 	
 }

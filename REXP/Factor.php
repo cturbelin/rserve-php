@@ -31,7 +31,7 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 		$levels = $this->levels;
 		$r = array();
 		foreach($this->values as $v) {
-			$r[] = $levels[$v];
+			$r[] = $levels[$v-1];
 		}
 		return $r;
 	}
@@ -40,4 +40,16 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 		return Rserve_Parser::XT_FACTOR;
 	}
 	
+	public function setAttributes($attr) {
+		parent::setAttributes($attr);
+		$lev = $this->getAttribute('levels');
+		if( $lev ) {
+			$lev = $lev->getValues();
+			$levels = array();
+			foreach($lev as $l) {
+				$levels[] =(string)$l; 
+			}	
+			$this->levels = $levels;
+		}
+	}
 }

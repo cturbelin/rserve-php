@@ -9,7 +9,7 @@
  */
 
 /**
- * R List
+ * R List implementation
  */
 class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 
@@ -36,7 +36,11 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 		if(count($this->values) != count($names)) {
 			throw new LengthException('Invalid names length');
 		}
-		$this->names = $names;
+		$nn = array();
+		foreach($names as $n) {
+			$nn[] = (string)$n;
+		}
+		$this->names = $nn;
 		$this->is_named = TRUE;
 	}
 
