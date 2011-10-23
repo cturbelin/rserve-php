@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Rserve message Parser
  * @author Clément Turbelin
@@ -114,10 +115,11 @@ class Rserve_Parser {
 	 * parse SEXP results -- limited implementation for now (large packets and some data types are not supported)
 	 * @param string $buf
 	 * @param int $offset
-	 * @param unknown_type $attr
 	 */
-	public static function parse($buf, $offset, $attr = NULL) {
-		$r = $buf;
+	public static function parse($buf, &$offset) {
+		
+        $attr = NULL;
+        $r = $buf;
 		$i = $offset;
 
 		// some simple parsing - just skip attributes and assume short responses
@@ -134,11 +136,11 @@ class Rserve_Parser {
 			//echo '(ATTR*[';
 			$ra &= ~self::XT_HAS_ATTR;
 			$al = int24($r, $i + 1);
-			$attr = self::parse($buf, $i);
+            $tmp = $i; // use temporary to protect current offset
+			$attr = self::parse($buf, $tmp);
 			//echo '])';
 			$i += $al + 4;
 		}
-		
         switch($ra) {
             case self::XT_NULL:
                 $a = NULL;
@@ -146,7 +148,7 @@ class Rserve_Parser {
             case self::XT_VECTOR: // generic vector
                 $a = array();
                 while ($i < $eoa) {
-                    $a[] = self::parse($buf, &$i);
+                    $a[] = self::parse($buf, $i);
                 }
                 // if the 'names' attribute is set, convert the plain array into a map
                 if ( isset($attr['names']) ) {
@@ -186,7 +188,9 @@ class Rserve_Parser {
             case self::XT_LANG_NOTAG:
             case self::XT_LIST_NOTAG : // pairlist w/o tags
                 $a = array();
-                while ($i < $eoa) $a[] = self::parse($buf, &$i);
+                while ($i < $eoa) {
+                    $a[] = self::parse($buf, $i);
+                }
             break;
             
             case self::XT_LIST_TAG:
@@ -194,8 +198,8 @@ class Rserve_Parser {
                 // pairlist with tags
                 $a = array();
                 while ($i < $eoa) {
-                    $val = self::parse($buf, &$i);
-                    $tag = self::parse($buf, &$i);
+                    $val = self::parse($buf, $i);
+                    $tag = self::parse($buf, $i);
                     $a[$tag] = $val;
                 }
             break;
@@ -290,9 +294,9 @@ class Rserve_Parser {
                 $a = NULL;
         } // end switch
         
-        if(self::$use_array_object) {
+        if( self::$use_array_object ) {
             if( is_array($a) & $attr) {
-                return new Rserve_RNative($a, $attr);
+                return new Rserve_RNative($a, $attr, $ra);
             } else {
                 return $a;
             }
@@ -305,14 +309,14 @@ class Rserve_Parser {
 	 * parse SEXP to Debug array(type, length,offset, contents, n)
 	 * @param string $buf
 	 * @param int $offset
-	 * @param unknown_type $attr
 	 */
-	public static function parseDebug($buf, $offset, $attr = NULL) {
+	public static function parseDebug($buf, &$offset) {
 		$r = $buf;
 		$i = $offset;
 
 		// some simple parsing - just skip attributes and assume short responses
-		$ra = int8($r, $i);
+		$attr =  NULL;
+        $ra = int8($r, $i);
 		$rl = int24($r, $i + 1);
 		$i += 4;
 
@@ -329,12 +333,12 @@ class Rserve_Parser {
 			return $result;
 		}
 		if ($ra > self::XT_HAS_ATTR) {
-		
 			$ra &= ~self::XT_HAS_ATTR;
 			$al = int24($r, $i + 1);
-			$attr = self::parseDebug($buf, $i);
+            $tmp = $i; // use temporary to protect current offset
+			$attr = self::parseDebug($buf, $tmp);
 			$result['attr'] = $attr;
-			$i += $al + 4;
+			$i += $al + 4; // add attribute length
 		}
 		if ($ra == self::XT_NULL) {
 			return $result;
@@ -342,7 +346,7 @@ class Rserve_Parser {
 		if ($ra == self::XT_VECTOR) { // generic vector
 			$a = array();
 			while ($i < $eoa) {
-				$a[] = self::parseDebug($buf, &$i);
+				$a[] = self::parseDebug($buf, $i);
 			}
 			$result['contents'] = $a;			
 		}
@@ -355,14 +359,14 @@ class Rserve_Parser {
 		}
 		if ($ra == self::XT_LIST_NOTAG || $ra == self::XT_LANG_NOTAG) { // pairlist w/o tags
 			$a = array();
-			while ($i < $eoa) $a[] = self::parseDebug($buf, &$i);
+			while ($i < $eoa) $a[] = self::parseDebug($buf, $i);
 			$result['contents'] = $a;
 		}
 		if ($ra == self::XT_LIST_TAG || $ra == self::XT_LANG_TAG) { // pairlist with tags
 			$a = array();
 			while ($i < $eoa) {
-				$val = self::parseDebug($buf, &$i);
-				$tag = self::parse($buf, &$i);
+				$val = self::parseDebug($buf, $i);
+				$tag = self::parse($buf, $i);
 				$a[$tag] = $val;
 			}
 			$result['contents'] = $a;
@@ -438,8 +442,9 @@ class Rserve_Parser {
 	}
 	
 	
-	public static function parseREXP($buf, $offset, $attr = NULL) {
-		$r = $buf;
+	public static function parseREXP($buf, &$offset) {
+		$attr = NULL;
+        $r = $buf;
 		$i = $offset;
 
 		// some simple parsing - just skip attributes and assume short responses
@@ -455,19 +460,34 @@ class Rserve_Parser {
 		if ($ra > self::XT_HAS_ATTR) {
 			$ra &= ~self::XT_HAS_ATTR;
 			$al = int24($r, $i + 1);
-			$attr = self::parseREXP($buf, $i);
+            $tmp = $i;
+			$attr = self::parseREXP($buf, $tmp);
 			$i += $al + 4;
 		}
+		
+		$class = ($attr) ? $attr->at('class') : null;
+		if( $class ) {
+			$class = $class->getValues();
+		}
+		
 		switch($ra) {
 			case self::XT_NULL:
 				$a =  new Rserve_REXP_Null();
 				break;
+				
 			case self::XT_VECTOR: // generic vector
 				$v = array();
 				while ($i < $eoa) {
-					$v[] = self::parseREXP($buf, &$i);
+					$v[] = self::parseREXP($buf, $i);
 				}
-				$a =  new Rserve_REXP_GenericVector();
+				
+				$klass = 'Rserve_REXP_GenericVector';
+				if( $class ) {
+					if( in_array('data.frame', $class) ) {
+						$klass = 'Rserve_REXP_Dataframe'; 
+					}
+				}
+				$a = new $klass(); 
 				$a->setValues($v);
 				break;
 
@@ -480,24 +500,26 @@ class Rserve_Parser {
 				$a = new Rserve_REXP_Symbol();
 				$a->setValue($v);
 				break;
+				
 			case self::XT_LIST_NOTAG:
 			case self::XT_LANG_NOTAG: // pairlist w/o tags
 				$v = array();
 				while ($i < $eoa) {
-					$v[] = self::parseREXP($buf, &$i);
+					$v[] = self::parseREXP($buf, $i);
 				}
 				$clasz = ($ra == self::XT_LIST_NOTAG) ? 'Rserve_REXP_List' : 'Rserve_REXP_Language';
 				$a = new $clasz();
 				$a->setValues($a);
 				break;
-			case self::XT_LIST_TAG :
+			
+			case self::XT_LIST_TAG:
 			case self::XT_LANG_TAG: // pairlist with tags
 				$clasz = ($ra == self::XT_LIST_TAG) ? 'Rserve_REXP_List' : 'Rserve_REXP_Language';
 				$v = array();
 				$names = array();
 				while ($i < $eoa) {
-					$v[] = self::parseREXP($buf, &$i);
-					$names[] = self::parseREXP($buf, &$i);
+					$v[] = self::parseREXP($buf, $i);
+					$names[] = self::parseREXP($buf, $i);
 				}
 				$a = new $clasz();
 				$a->setValues($v);
@@ -510,7 +532,13 @@ class Rserve_Parser {
 					$v[] = int32($r, $i);
 					$i += 4;
 				}
-				$a = new Rserve_REXP_Integer();
+				$klass = 'Rserve_REXP_Integer';
+				if( $class ) {
+					if( in_array('factor', $class) ) {
+						$klass = 'Rserve_REXP_Factor';
+					}
+				}
+				$a = new $klass();
 				$a->setValues($v);
 				break;
 
@@ -577,7 +605,6 @@ class Rserve_Parser {
 		if( $attr && is_object($a) ) {
 			$a->setAttributes($attr);
 		}
-			
 		return $a;
 	}
 
@@ -755,7 +782,7 @@ class Rserve_Parser {
 		}
 		/*
 		TODO: handling attr
-		$attr = $value->attr();
+		$attr = $value->attributes();
 		$attr_bin = '';
 		if( is_null($attr) ) {
 			$attr_off = self::createBinary($attr, $attr_bin, 0);

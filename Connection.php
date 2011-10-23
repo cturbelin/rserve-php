@@ -160,7 +160,7 @@ class Rserve_Connection {
 	 * @param int $parser 
 	 * @param REXP_List $attr
 	 */
-	public function evalString($string, $parser = self::PARSER_NATIVE, $attr=NULL) {
+	public function evalString($string, $parser = self::PARSER_NATIVE) {
 		$r = $this->command(self::CMD_eval, $string );
 		$i = 20;
 		if( !$r['is_error'] ) {
@@ -168,18 +168,18 @@ class Rserve_Connection {
 			$r = NULL;
             switch($parser) {
                 case self::PARSER_NATIVE:
-                    $r = Rserve_Parser::parse($buf, $i, &$attr);
+                    $r = Rserve_Parser::parse($buf, $i);
                 break;
                 case self::PARSER_REXP:
-                    $r = Rserve_Parser::parseREXP($buf, $i, &$attr);
+                    $r = Rserve_Parser::parseREXP($buf, $i);
                 break;
                 case self::PARSER_DEBUG:
-                    $r = Rserve_Parser::parseDebug($buf, $i, &$attr);
+                    $r = Rserve_Parser::parseDebug($buf, $i);
                     break;
                 case self::PARSER_NATIVE_WRAPPED:
                         $old = Rserve_Parser::$use_array_object;
                         Rserve_Parser::$use_array_object = TRUE;
-                        $r = Rserve_Parser::parse($buf, $i, &$attr);
+                        $r = Rserve_Parser::parse($buf, $i);
                         Rserve_Parser::$use_array_object = $old;
                     break;
                 default:
