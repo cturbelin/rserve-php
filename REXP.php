@@ -144,6 +144,10 @@ class Rserve_REXP {
 		return FALSE; 
 	}
 	
+    public function length() {
+        return 0;
+    }
+    
 	public function getClass() {
 		$class = $this->getAttribute('class');
 		if($class) {

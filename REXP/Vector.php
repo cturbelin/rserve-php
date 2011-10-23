@@ -47,7 +47,7 @@ class Rserve_REXP_Vector extends Rserve_REXP {
 		if( $dim ) {
 			return $dim->getValues();
 		}
-		return $this->length(); 
+		return array($this->length()); 
 	}
 	
 	/**

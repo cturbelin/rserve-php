@@ -37,4 +37,7 @@ class Rserve_REXP_Symbol extends Rserve_REXP {
 		return $this->name;
 	}
 	
+    public function length() {
+        return 1;
+    }
 }
