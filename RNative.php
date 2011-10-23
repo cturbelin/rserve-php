@@ -7,7 +7,7 @@
  
 /**
 * php Native array with attributes feature
-* results wrapped in this class could be used as an array ($result['toto']) to get a results and using methods to access to attributes
+* results wrapped in this class could be used as an array ($result['toto']) to get a results and attributes could be accessed using methods
 */
 class Rserve_RNative implements ArrayAccess {
     
@@ -39,12 +39,20 @@ class Rserve_RNative implements ArrayAccess {
         $this->type = $exp_type;
     }
     
+    /**
+    * @param string $name get the attribute named $name
+    * @return mixed
+    */
     public function getAttr($name) {
-        return (isset($this->attr[$name])) ? $this->attr[$name] : NULL;
+        return isset($this->attr[$name]) ? $this->attr[$name] : NULL;
     }
     
+    /**
+    * Test if an attibute exists
+    * @param string $name 
+    */
     public function hasAttr($name) {
-        return (isset($this->attr[$name])) ? TRUE : FALSE;
+        return isset($this->attr[$name]) ? TRUE : FALSE;
     }
     
     /**
