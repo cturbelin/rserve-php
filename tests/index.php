@@ -9,6 +9,12 @@ $test_cases = Rserve_Tests_Definition::$native_tests;
 
 require 'example/head.php';
 
+function mydump($x) {
+    echo '<pre>';
+    var_dump($x);
+    echo '</pre>';
+}
+
 try { 
 
     echo '<div id="tab_0" class="tab">';
@@ -24,7 +30,7 @@ try {
     echo '<h2>Chi2</h2>';
     $x = $r->evalString('a=rpois(100,100); b=rpois(100,100); list(a,b)');
 
-    //var_dump($x);
+    //mydump($x);
     
     $x = $r->evalString('chisq.test(table(a,b))', Rserve_Connection::PARSER_REXP);
 
@@ -48,11 +54,28 @@ try {
             echo '<div class="rcmd">&gt; '.$cmd.'</div>';
             $x = $r->evalString($cmd, $parser);
             echo '<div class="vardump">';
-            var_dump($x);
+            mydump($x);
             echo '</div>';
         }
         echo '</div>';
     }
+    
+    ++$i;
+    echo '<div id="tab_'.$i.'" class="tab">';
+    echo '<h2>Dataframe</h2>';
+    $cmd = 'data.frame(sexe=c("F","M","F","M"), age=c(10,22,23,44), weight=c(20,55,60,67))';
+    $x = $r->evalString($cmd, Rserve_Connection::PARSER_REXP); 
+    
+    mydump($x);
+    
+    mydump($x->getClass());
+    
+    mydump($x->getRowNames());
+    
+    mydump($x->getNames());
+    
+    echo '</div>';
+    
     
     $r->close();
 } catch(Exception $e) {

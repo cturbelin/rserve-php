@@ -82,10 +82,11 @@ $(document).ready(function() {
 <ul id="tabs">
     <li rel="tab_0">Home</li>
     <li rel="tab_1">Chi2 example</li>
-    <li rel="tab_2">Tests using native parser</li>
-    <li rel="tab_3">Tests using wrapped native parser</li>
-    <li rel="tab_4">Tests using debug parser</li>
-    <li rel="tab_5">Tests using REXP parser</li>
+    <li rel="tab_2">Native parser</li>
+    <li rel="tab_3">Wrapped native parser</li>
+    <li rel="tab_4">Debug parser</li>
+    <li rel="tab_5">REXP parser</li>
+    <li rel="tab_6">Data.frame</li>
 </ul>
 </div>
 <div id="main">
