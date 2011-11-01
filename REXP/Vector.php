@@ -63,7 +63,7 @@ class Rserve_REXP_Vector extends Rserve_REXP {
 	 * @param unknown_type $index
 	 */
 	public function at($index) {
-		return $this->values[$index];
+		return isset($this->values[$index]) ? $this->values[$index] : null;
 	}
 	
 	public function getType() {
@@ -72,8 +72,12 @@ class Rserve_REXP_Vector extends Rserve_REXP {
 	
 	public function toHTML() {
 		$s = '<div class="rexp vector xt_'.$this->getType().'">';
+		$dim = $this->dim();
 		$n = $this->length();
-		$s .= '<span class="typename">'.Rserve_Parser::xtName($this->getType()).'</span> <span class="length">'.$n.'</span>';
+		$s .= '<span class="typename">'.Rserve_Parser::xtName($this->getType()).'</span>';
+		$s .= '[';
+		$s .= join(',', $dim);
+		$s .= ']';
 		$s .= '<div class="values">';
 		if($n) {
 			$m = ($n > 20) ? 20 : $n;
@@ -82,11 +86,7 @@ class Rserve_REXP_Vector extends Rserve_REXP {
 				if(is_object($v) AND ($v instanceof Rserve_REXP)) {
 					$v = $v->toHTML();
 				} else {
-					if($this->isString()) {
-						$v = '"'.(string)$v.'"';
-					} else {
-						$v = (string)$v;
-					}
+					$v = $this->valueToHTML($v);
 				}
 				$s .= '<div class="value">'.$v.'</div>';
 			}
@@ -95,5 +95,13 @@ class Rserve_REXP_Vector extends Rserve_REXP {
 		$s .= $this->attrToHTML();
 		$s .= '</div>';
 		return $s;
+	}
+	
+	/**
+	 * HTML representation for a value
+	 * @param mixed $v
+	 */
+	protected function valueToHTML($v) {
+		return (string)$v;
 	}
 }

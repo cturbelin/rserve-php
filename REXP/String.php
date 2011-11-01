@@ -21,4 +21,7 @@ class Rserve_REXP_String extends Rserve_REXP_Vector {
 		return Rserve_Parser::XT_STR;
 	}
 	
+	protected function valueToHTML($v) {
+		return '"'.(string)$v.'"';
+	}
 }

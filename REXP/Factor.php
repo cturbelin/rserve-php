@@ -10,6 +10,8 @@
 
 /**
 * R Double Factor
+* A factor is an integer value associated with a label (level in R vocabulary)
+* Caution: first level is coded as a 1 value
 */
 class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 	
@@ -19,11 +21,17 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 		return TRUE; 
 	}
 	
-	public function getLevels() {
+	/**
+    * get levels
+    */
+    public function getLevels() {
 		return $this->levels;
 	}
 	
-	public function setLevels($levels) {
+	/**
+    * Set levels
+    */
+    public function setLevels($levels) {
 		$this->levels = $levels;
 	}
 	
@@ -31,7 +39,7 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 		$levels = $this->levels;
 		$r = array();
 		foreach($this->values as $v) {
-			$r[] = $levels[$v-1];
+			$r[] = $levels[$v];
 		}
 		return $r;
 	}
@@ -40,15 +48,17 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 		return Rserve_Parser::XT_FACTOR;
 	}
 	
-	public function setAttributes($attr) {
+	public function setAttributes(Rserve_REXP_List $attr) {
 		parent::setAttributes($attr);
 		$lev = $this->getAttribute('levels');
 		if( $lev ) {
 			$lev = $lev->getValues();
 			$levels = array();
-			foreach($lev as $l) {
-				$levels[] =(string)$l; 
-			}	
+			$i = 0;
+            foreach($lev as $l) {
+				++$i;
+                $levels[$i] =(string)$l; // force string for convinience
+            }	
 			$this->levels = $levels;
 		}
 	}

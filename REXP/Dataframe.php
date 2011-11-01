@@ -2,7 +2,11 @@
 
 class Rserve_REXP_Dataframe extends Rserve_REXP_Vector {
 	
-	public function getNames() {
+	/**
+    * R names() => columns names
+    * @return array()
+    */
+    public function getNames() {
 		$n =  $this->getAttribute('names');
 		if($n) {
 			return $n->getValues();
@@ -10,7 +14,11 @@ class Rserve_REXP_Dataframe extends Rserve_REXP_Vector {
 		return NULL;
 	}
 	
-	public function getRowNames() {
+	/**
+    * R rownames()
+    * @return array() 
+    */
+    public function getRowNames() {
 		$n  = $this->getAttribute('row.names');
 		if($n) {
 			return $n->getValues();
@@ -19,9 +27,23 @@ class Rserve_REXP_Dataframe extends Rserve_REXP_Vector {
 	}
 	
 	/**
-	 * Number of rows
+     * Number of rows
+	 * @return int 
 	 */
-	public function nrows() {
-		
-	}  
+	public function nrow() {
+		$v = $this->getValues();
+        if( is_array($v) ) {
+          $v = $v[0]; 
+          return $v->length(); 
+        }
+        return 0;
+	}
+
+    /**
+    * Number of columns
+    * @return int
+    */
+    public function ncol() {
+        return $this->length();
+    }
 }
