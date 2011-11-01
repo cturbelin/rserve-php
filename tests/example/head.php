@@ -87,6 +87,7 @@ $(document).ready(function() {
     <li rel="tab_4">Debug parser</li>
     <li rel="tab_5">REXP parser</li>
     <li rel="tab_6">Data.frame</li>
+    <li rel="tab_7">Complex</li>
 </ul>
 </div>
 <div id="main">

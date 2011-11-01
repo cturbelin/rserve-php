@@ -4,12 +4,16 @@
 */ 
 require_once 'config.php';
 require '../Connection.php';
+require 'Definition.php';
 
 $test_cases = Rserve_Tests_Definition::$native_tests;
 
 require 'example/head.php';
 
-function mydump($x) {
+function mydump($x, $title=NULL) {
+    if($title) {
+        echo '<h4>'.$title.'</h4>';
+    }
     echo '<pre>';
     var_dump($x);
     echo '</pre>';
@@ -66,13 +70,34 @@ try {
     $cmd = 'data.frame(sexe=c("F","M","F","M"), age=c(10,22,23,44), weight=c(20,55,60,67))';
     $x = $r->evalString($cmd, Rserve_Connection::PARSER_REXP); 
     
-    mydump($x);
+    mydump($x, 'REXP object');
     
-    mydump($x->getClass());
+    mydump($x->getClass(),'getClass()');
     
-    mydump($x->getRowNames());
+    mydump($x->getRowNames(), 'getRowNames()');
     
-    mydump($x->getNames());
+    mydump($x->getNames(), 'getNames()');
+    
+    mydump($x->nrow(), 'nrow()');
+    
+    mydump($x->ncol(), 'ncol()');
+    
+    echo '</div>';
+    
+    
+    ++$i;
+    echo '<div id="tab_'.$i.'" class="tab">';
+    echo '<h2>Complex</h2>';
+    $cmd = 'x = 1:10 + rnorm(10)*1i';
+    $x = $r->evalString($cmd, Rserve_Connection::PARSER_REXP); 
+    
+    mydump($x, 'REXP object');
+    
+    echo $x->toHTML();
+    
+    $x = $r->evalString($cmd, Rserve_Connection::PARSER_NATIVE); 
+    
+    mydump($x,'Native');
     
     echo '</div>';
     

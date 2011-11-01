@@ -2,6 +2,7 @@
 
 require_once 'config.php';
 require_once dirname(__FILE__).'/../Connection.php';
+require_once 'Definition.php';
 
 class ParserNativeTest extends PHPUnit_Framework_TestCase {
 

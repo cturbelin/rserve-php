@@ -278,11 +278,22 @@ class Rserve_Parser {
                 $a =  substr($r, $i, $len);
             break;
             
-            /*
             case self::XT_ARRAY_CPLX:
-
+                // real part
+                $real = array();
+                while ($i < $eoa) {
+                    $real[] = flt64($r, $i);
+                    $i += 8;
+                    $im[] = flt64($r, $i);
+                    $i += 8;
+                }
+                if (count($real) == 1) {
+                    $a = array($real[0], $im[0]);
+                } else {
+                    $a = array($real, $im);
+                }
             break;
-            */
+        
             case 48: // unimplemented type in Rserve
                 $uit = int32($r, $i);
                 // echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
@@ -431,8 +442,20 @@ class Rserve_Parser {
 			$result['contents'] = substr($r, $i, $len);
 		}
 		if($ra == self::XT_ARRAY_CPLX) {
-			$result['not_implemented'] = true;
-            // TODO: complex
+			$real = array();
+			$im = array();
+			while ($i < $eoa) {
+				$real[] = flt64($r, $i);
+				$i += 8;
+				$im[] = flt64($r, $i);
+				$i += 8;
+			}
+            if (count($real) == 1) {
+				$a = array($real[0], $im[0]);
+			} else {
+                $a = array($real, $im);
+            }
+			$result['contents'] = $a;
 		}
 		if ($ra == 48) { // unimplemented type in Rserve
 			$uit = int32($r, $i);
@@ -589,18 +612,27 @@ class Rserve_Parser {
 				break;
 
 			case self::XT_ARRAY_CPLX:
-				$a = FALSE;
+				$v = array();
+				while ($i < $eoa) {
+					$real = flt64($r, $i);
+					$i += 8;
+					$im = flt64($r, $i);
+					$i += 8;
+					$v[] = array($real, $im);	
+				}
+				$a = new Rserve_REXP_Complex();
+				$a->setValues($v);
 				break;
-					
-			case 48: // unimplemented type in Rserve
+			/*		
+		    case 48: // unimplemented type in Rserve
 				$uit = int32($r, $i);
 				// echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
 				$a = NULL;
 				break;
-
+            */
 			default:
-				echo 'Warning: type '.$ra.' is currently not implemented in the PHP client.';
-				$a = FALSE;
+				// handle unknown type
+                $a = Rserve_REXP_Unknown($ra);
 		}
 		if( $attr && is_object($a) ) {
 			$a->setAttributes($attr);
