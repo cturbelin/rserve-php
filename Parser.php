@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Rserve message Parser
  * @author Clément Turbelin
@@ -112,9 +111,11 @@ class Rserve_Parser {
     public static $factor_as_string = TRUE;
     
 	/**
+	 * SEXP to php array parser 
 	 * parse SEXP results -- limited implementation for now (large packets and some data types are not supported)
 	 * @param string $buf
 	 * @param int $offset
+	 * @return native php array or a RNative object if if the static property $use_array_object is TRUE 
 	 */
 	public static function parse($buf, &$offset) {
 		
@@ -464,7 +465,9 @@ class Rserve_Parser {
 		return $result;
 	}
 	
-	
+	/**
+	* SEXP to REXP objects parser
+	*/
 	public static function parseREXP($buf, &$offset) {
 		$attr = NULL;
         $r = $buf;
