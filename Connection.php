@@ -17,11 +17,11 @@ require_once 'Parser.php';
  */
 class Rserve_Connection {
 
-    const PARSER_NATIVE = 0;
-    const PARSER_REXP = 1;
-    const PARSER_DEBUG = 2;
-    const PARSER_NATIVE_WRAPPED = 3;
-    
+	const PARSER_NATIVE = 0;
+	const PARSER_REXP = 1;
+	const PARSER_DEBUG = 2;
+	const PARSER_NATIVE_WRAPPED = 3;
+
 	const DT_INT = 1;
 	const DT_CHAR = 2;
 	const DT_DOUBLE = 3;
@@ -80,6 +80,8 @@ class Rserve_Connection {
 
 	private static $init = FALSE;
 
+	private $host;
+	private $port;
 	private $socket;
 	private $auth_request;
 	private $auth_method;
@@ -89,9 +91,9 @@ class Rserve_Connection {
 	 */
 	public static function init() {
 		if( self::$init ) {
-            return;
-        }
-        $m = pack('s', 1);
+			return;
+		}
+		$m = pack('s', 1);
 		self::$machine_is_bigendian = ($m[0] == 0);
 		spl_autoload_register('Rserve_Connection::autoload');
 		self::$init = TRUE;
@@ -106,119 +108,126 @@ class Rserve_Connection {
 		$s = str_replace('_', '/', $s);
 		$s .= '.php';
 		require $s;
-		return TRUE; 
+		return TRUE;
 	}
 
 	/**
-	 *  if port is 0 then host is interpreted as unix socket, otherwise host is the host to connect to (default is local) and port is the TCP port number (6311 is the default)
+	 *  if port is 0 then host is interpreted as unix socket,
+	 *  otherwise host is the host to connect to (default is local) and port is the TCP port number (6311 is the default)
 	 */
 	public function __construct($host='127.0.0.1', $port = 6311, $debug = FALSE) {
 		if( !self::$init ) {
 			self::init();
 		}
-		if( $port == 0 ) {
+		$this->host = $host;
+		$this->port = $port;
+		$this->socket = $this->openSocket();
+	}
+
+	/**
+	 * Open a new socket to Rserv
+	 * @return resource socket
+	 */
+	private function openSocket() {
+		if( $this->port == 0 ) {
 			$socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 		} else {
 			$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 		}
-        if( !$socket ) {
-            throw new Rserve_Exception("Unable to create socket<pre>".socket_strerror(socket_last_error())."</pre>");
-        }
-        //socket_set_option($socket, SOL_TCP, SO_DEBUG,2);
-        $ok = socket_connect($socket, $host, $port);
-        if( !$ok ) {
-            throw new Rserve_Exception("Unable to connect<pre>".socket_strerror(socket_last_error())."</pre>");
-        }
-        $buf = '';
-        $n = socket_recv($socket, $buf, 32, 0);
-        if( $n < 32 || strncmp($buf, 'Rsrv', 4) != 0 ) {
-            throw new Rserve_Exception('Invalid response from server.');
-        }
-        $rv = substr($buf, 4, 4);
-        if( strcmp($rv, '0103') != 0 ) {
-            throw new Rserve_Exception('Unsupported protocol version.');
-        }
-        for($i = 12; $i < 32; $i += 4) {
-            $attr = substr($buf, $i, $i + 4);
-            if($attr == 'ARpt') {
-                $this->auth_request = TRUE;
-                $this->auth_method = 'plain';
-            } elseif($attr == 'ARuc') {
-                $this->auth_request = TRUE;
-                $this->auth_method = 'crypt';
-            }
-            if($attr[0] === 'K') {
-                $key = substr($attr, 1, 3);
-            }
-        }
-		$this->socket = $socket;
+		if( !$socket ) {
+			throw new Rserve_Exception("Unable to create socket<pre>".socket_strerror(socket_last_error())."</pre>");
+		}
+		//socket_set_option($socket, SOL_TCP, SO_DEBUG,2);
+		$ok = socket_connect($socket, $this->host, $this->port);
+		if( !$ok ) {
+			throw new Rserve_Exception("Unable to connect<pre>".socket_strerror(socket_last_error())."</pre>");
+		}
+		$buf = '';
+		$n = socket_recv($socket, $buf, 32, 0);
+		if( $n < 32 || strncmp($buf, 'Rsrv', 4) != 0 ) {
+			throw new Rserve_Exception('Invalid response from server.');
+		}
+		$rv = substr($buf, 4, 4);
+		if( strcmp($rv, '0103') != 0 ) {
+			throw new Rserve_Exception('Unsupported protocol version.');
+		}
+		for($i = 12; $i < 32; $i += 4) {
+			$attr = substr($buf, $i, $i + 4);
+			if($attr == 'ARpt') {
+				$this->auth_request = TRUE;
+				$this->auth_method = 'plain';
+			} elseif($attr == 'ARuc') {
+				$this->auth_request = TRUE;
+				$this->auth_method = 'crypt';
+			}
+			if($attr[0] === 'K') {
+				$key = substr($attr, 1, 3);
+			}
+		}
+		return $socket;
+	}
+
+	/**
+	 * Parse a response from Rserve
+	 * @param string $r
+	 * @param int	$parser
+	 * @return parsed results 
+	 */
+	private function parseResponse($r, $parser) {
+		$i = 20;
+		$buf = $r;
+		$r = NULL;
+		switch($parser) {
+			case self::PARSER_NATIVE:
+				$r = Rserve_Parser::parse($buf, $i);
+				break;
+			case self::PARSER_REXP:
+				$r = Rserve_Parser::parseREXP($buf, $i);
+				break;
+			case self::PARSER_DEBUG:
+				$r = Rserve_Parser::parseDebug($buf, $i);
+				break;
+			case self::PARSER_NATIVE_WRAPPED:
+				$old = Rserve_Parser::$use_array_object;
+				Rserve_Parser::$use_array_object = TRUE;
+				$r = Rserve_Parser::parse($buf, $i);
+				Rserve_Parser::$use_array_object = $old;
+				break;
+			default:
+				throw new Rserve_Exception('Unknown parser');
+		}
+		return $r;
 	}
 
 	/**
 	 * Evaluate a string as an R code and return result
 	 * @param string $string
-	 * @param int $parser 
-	 * @param REXP_List $attr
+	 * @param int $parser
 	 */
 	public function evalString($string, $parser = self::PARSER_NATIVE) {
 		$r = $this->command(self::CMD_eval, $string );
-		$i = 20;
 		if( !$r['is_error'] ) {
-			$buf = $r['contents'];
-			$r = NULL;
-            switch($parser) {
-                case self::PARSER_NATIVE:
-                    $r = Rserve_Parser::parse($buf, $i);
-                break;
-                case self::PARSER_REXP:
-                    $r = Rserve_Parser::parseREXP($buf, $i);
-                break;
-                case self::PARSER_DEBUG:
-                    $r = Rserve_Parser::parseDebug($buf, $i);
-                    break;
-                case self::PARSER_NATIVE_WRAPPED:
-                        $old = Rserve_Parser::$use_array_object;
-                        Rserve_Parser::$use_array_object = TRUE;
-                        $r = Rserve_Parser::parse($buf, $i);
-                        Rserve_Parser::$use_array_object = $old;
-                    break;
-                default:
-                    throw new Exception('Unknown parser');
-            }
-			return $r;
+			return $this->parseResponse($r['contents'], $parser);
 		}
 		// TODO: contents and code in exception
 		throw new Rserve_Exception('unable to evaluate');
 	}
 
-	/**
-	 * Close the current connection
-	 */
-	public function close() {
-		if($this->socket) {
-			return socket_close($this->socket);
-		}
-		return TRUE;
-	}
 
 	/**
-	 * send a command to R
-	 * @param int $command command code
-	 * @param string $v command contents
+	 * Get the response from a command
+	 * @param resource	$socket
+	 * @return array contents
 	 */
-	private function command($command, $v) {
-		$pkt = _rserve_make_packet($command, $v);
-		socket_send($this->socket, $pkt, strlen($pkt), 0);
-
-		// get response
-		$n = socket_recv($this->socket, $buf, 16, 0);
+	public function getResponse($socket) {
+		$n = socket_recv($socket, $buf, 16, 0);
 		if ($n != 16) {
 			return FALSE;
 		}
 		$len = int32($buf, 4);
 		$ltg = $len;
 		while ($ltg > 0) {
-			$n = socket_recv($this->socket, $b2, $ltg, 0);
+			$n = socket_recv($socket, $b2, $ltg, 0);
 			if ($n > 0) {
 				$buf .= $b2;
 				unset($b2);
@@ -237,23 +246,101 @@ class Rserve_Connection {
 	}
 
 	/**
+	 * Create a new connection to Rserve for async calls
+	 * @return	resource the socket ref
+	 */
+	public function newConnection() {
+		return $this->openSocket();
+	}
+
+	/**
+	 * Evaluate string asyncronously
+	 * @param resource	$socket
+	 * @param string $string
+	 * @return results @see evalString()
+	 */
+	public function evalStringAsync($socket, $string) {
+		return $this->command(self::CMD_eval, $string, $socket);
+	}
+
+	/**
+	 * Get response from socket, for async
+	 * @param resource $socket
+	 * @param int $parser
+	 * @return mixed contents of response
+	 */
+	public function getResponseAsync($socket, $parser = self::PARSER_NATIVE) {
+		$r = $this->getResponse($socket);
+		if( !$r['is_error'] ) {
+			return $this->parseResponse($r['contents'],$parser);
+		}
+		// TODO: contents and code in exception
+		throw new Rserve_Exception('unable to evaluate');
+	}
+
+	/**
+	 * Close a connection for async calling
+	 * @param resource $socket
+	 * @return bool
+	 */
+	public function closeConnection($socket) {
+		if($socket) {
+			return socket_close($socket);
+		}
+		return TRUE;
+	}
+
+	/**
+	 * Close the current connection
+	 */
+	public function close() {
+		return $this->closeConnection($this->socket);
+	}
+
+	/**
+	 * send a command to R
+	 * @param int $command command code
+	 * @param string $v command contents
+	 * @param	resource	$socket socket to use
+	 * @return int	if $async, the new socket
+	 */
+	private function command($command, $v, $socket = 0) {
+		
+		if ( !is_resource($socket) ) {
+			$socket = $this->socket;
+		}
+		
+		$i = $pkt = _rserve_make_packet($command, $v);
+		
+		socket_send($socket, $pkt, strlen($pkt), 0);
+
+		// if different, async call
+		if ( $socket !== $this->socket) {
+			return;
+		}
+
+		// get response
+		return $this->getResponse($socket);
+	}
+
+	/**
 	 * Assign a value to a symbol in R
 	 * @param string $symbol name of the variable to set (should be compliant with R syntax !)
 	 * @param Rserve_REXP $value value to set
-     Commented because not ready for this release
-	public function assign($symbol, $value) {
+	 Commented because not ready for this release
+	 public function assign($symbol, $value) {
 		if(! is_object($symbol) and !$symbol instanceof Rserve_REXP_Symbol) {
-			$symbol = (string)$symbol;
-			$s = new Rserve_REXP_Symbol();
-			$s->setValue($symbol);
+		$symbol = (string)$symbol;
+		$s = new Rserve_REXP_Symbol();
+		$s->setValue($symbol);
 		}
 		if(!is_object($value) AND ! $value instanceof Rserve_REXP) {
-			throw new InvalidArgumentException('value should be REXP object');
+		throw new InvalidArgumentException('value should be REXP object');
 		}
 		$contents .= Rserve_Parser::createBinary($s);
 		$contents .= Rserve_Parser::createBinary($value);
-	}
-   	 */
+		}
+		*/
 
 }
 
