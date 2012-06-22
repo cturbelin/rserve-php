@@ -7,7 +7,7 @@ Files Description
 -------------------
 
 * Connection.php : main class Rserve_Connection, you only need to manipulate an instance of this class (evalString method for now)
-* funclib.php : function librairies 
+* helpers.php : helpers function librairies 
 * Parser.php : Parser class used to Parse Rserve binary packets to php structures (native array or REXP children)
 * RNative.php : an array wrapper used to catch attributes (experimental, usefull ?)
 * REXP/*.php : R expression classes
@@ -22,7 +22,7 @@ This feature is in beta and has unit tests
 
 - wrapped native php array : you get the results in a simple object (RNative) with results as php array and you can access to R object attributes.
 
-- Debug : full description of the Rserve protocole results
+- Debug : full description of the Rserve protocol results
 
 - REXP: All R structures are wrapped in an REXP_* class
 This feature is in alpha: not very documented, tests in progress. Only low level R structures are handled (data.frame is a GenericVector, etc..)
