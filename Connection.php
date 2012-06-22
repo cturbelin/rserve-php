@@ -112,23 +112,35 @@ class Rserve_Connection {
 	}
 
 	/**
-	 *  if port is 0 then host is interpreted as unix socket,
-	 *  otherwise host is the host to connect to (default is local) and port is the TCP port number (6311 is the default)
+	 *  @param mixed host name or IP or a Rserve_Session instance
+	 *  @param int $port if 0 then host is interpreted as unix socket,
+	 *  
 	 */
 	public function __construct($host='127.0.0.1', $port = 6311, $debug = FALSE) {
 		if( !self::$init ) {
 			self::init();
 		}
-		$this->host = $host;
-		$this->port = $port;
-		$this->socket = $this->openSocket();
+		if(is_object($host) AND $host instanceof Rserve_Session) {
+			$session = $host->key;
+			$this->port = $host->port;
+			$host = $host->host;
+			if( !$host ) {
+				$host = '127.0.0.1';
+			}
+			$this->host = $host;
+		} else {
+			$this->host = $host;
+			$this->port = $port;
+			$session = NULL;
+		}
+		$this->socket = $this->openSocket($session);
 	}
 
 	/**
 	 * Open a new socket to Rserv
 	 * @return resource socket
 	 */
-	private function openSocket() {
+	private function openSocket($session_key = NULL) {
 		if( $this->port == 0 ) {
 			$socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 		} else {
@@ -142,26 +154,41 @@ class Rserve_Connection {
 		if( !$ok ) {
 			throw new Rserve_Exception('Unable to connect ['.socket_strerror(socket_last_error()).']');
 		}
-		$buf = '';
-		$n = socket_recv($socket, $buf, 32, 0);
-		if( $n < 32 || strncmp($buf, 'Rsrv', 4) != 0 ) {
-			throw new Rserve_Exception('Invalid response from server.');
-		}
-		$rv = substr($buf, 4, 4);
-		if( strcmp($rv, '0103') != 0 ) {
-			throw new Rserve_Exception('Unsupported protocol version.');
-		}
-		for($i = 12; $i < 32; $i += 4) {
-			$attr = substr($buf, $i, $i + 4);
-			if($attr == 'ARpt') {
-				$this->auth_request = TRUE;
-				$this->auth_method = 'plain';
-			} elseif($attr == 'ARuc') {
-				$this->auth_request = TRUE;
-				$this->auth_method = 'crypt';
+		if( !is_null($session_key) ) {
+			// Try to resume session
+			$n = socket_send($socket, $session_key, 32, 0);
+			if($n < 32) {
+				throw new Rserve_Exception('Unable to send session key');
 			}
-			if($attr[0] === 'K') {
-				$key = substr($attr, 1, 3);
+			$r = $this->getResponse($socket);
+			if($r['is_error']) {
+				$msg = $this->getErrorMessage($r['error']);
+				throw new Rserve_Exception('invalid session key : '.$msg);
+			}
+			
+		} else {
+			// No session, check handshake
+			$buf = '';
+			$n = socket_recv($socket, $buf, 32, 0);
+			if( $n < 32 || strncmp($buf, 'Rsrv', 4) != 0 ) {
+				throw new Rserve_Exception('Invalid response from server.');
+			}
+			$rv = substr($buf, 4, 4);
+			if( strcmp($rv, '0103') != 0 ) {
+				throw new Rserve_Exception('Unsupported protocol version.');
+			}
+			for($i = 12; $i < 32; $i += 4) {
+				$attr = substr($buf, $i, $i + 4);
+				if($attr == 'ARpt') {
+					$this->auth_request = TRUE;
+					$this->auth_method = 'plain';
+				} elseif($attr == 'ARuc') {
+					$this->auth_request = TRUE;
+					$this->auth_method = 'crypt';
+				}
+				if($attr[0] === 'K') {
+					$key = substr($attr, 1, 3);
+				}
 			}
 		}
 		return $socket;
@@ -216,6 +243,35 @@ class Rserve_Connection {
 		throw new Rserve_Exception('unable to evaluate', $r);
 	}
 
+	
+	/**
+	 * Detach the current session from the current connection.
+	 * Save envirnoment could be attached to another R connection later
+	 * @return array with session_key used to
+	 * @throws Rserve_Exception
+	 */
+	public function detachSession() {
+		$r = $this->command(self::CMD_detachSession, '');
+		if( !$r['is_error'] ) {
+			//$x = $this->parseResponse($r['contents'], self::PARSER_NATIVE);
+			$x = $r['contents'];
+			if( strlen($x) != (32+3*4) ) {
+				throw new Rserve_Exception('Invalid response to detach');
+			}
+			
+			$port  =  int32($x, 4);
+			$key = substr($x, 12);
+			$session = new Rserve_Session($key, $this->host, $port);
+			
+			return $session;
+		}
+		return $r;
+	}
+	
+	public function attachSession() {
+		
+	}
+	
 	/**
 	 * Get the response from a command
 	 * @param resource	$socket
@@ -431,6 +487,40 @@ class Rserve_Connection {
 	
 }
 
+/**
+ * R Session wrapper
+ * @author Clément Turbelin
+ *
+ */
+class Rserve_Session {
+	
+	/**
+	 * Session key
+	 * @var string
+	 */
+	public $key;
+	
+	/**
+	 * 
+	 * @var int
+	 */
+	public $port;
+	
+	public $host;
+
+	public function __construct($key, $host, $port) {
+		$this->key = $key;
+		$this->port = $port;
+		$this->host = $host;
+	}
+
+}
+
+/**
+ * RServe Exception
+ * @author Clément Turbelin
+ *
+ */
 class Rserve_Exception extends Exception {
 	public $packet;
 	public function __construct($message, $packet=NULL) {

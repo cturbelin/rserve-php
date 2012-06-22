@@ -178,6 +178,7 @@ class Rserve_Parser {
                 $a = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
             break;
             
+            case self::XT_SYM:
             case self::XT_SYMNAME: // symbol
                 $oi = $i;
                 while ($i < $eoa && ord($r[$i]) != 0) {
