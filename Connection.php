@@ -216,8 +216,6 @@ class Rserve_Connection {
 		throw new Rserve_Exception('unable to evaluate', $r);
 	}
 
-	
-	
 	/**
 	 * Get the response from a command
 	 * @param resource	$socket
@@ -405,6 +403,30 @@ class Rserve_Connection {
 			$m = 'unknown';			
 		}
 		return $m;
+	}
+	
+	public function getErrorMessage($code) {
+		switch($code) {
+			case ERR_auth_failed	: $m = 'auth failed'; break;
+			case ERR_conn_broken	: $m = 'connexion broken'; break;
+			case ERR_inv_cmd		:  $m = 'invalid command'; break;
+			case ERR_inv_par		:  $m = 'auth invalid parameter'; break;
+			case ERR_Rerror		:  $m = 'R error'; break;
+			case ERR_IOerror		:  $m = 'IO error'; break;
+			case ERR_not_open		:  $m = 'not open'; break;
+			case ERR_access_denied :  $m = 'access denied'; break;
+			case ERR_unsupported_cmd: $m = 'unsupported command'; break;
+			case ERR_unknown_cmd	:  $m = 'unknown command'; break;
+			case ERR_data_overflow	:  $m = 'data overflow'; break;
+			case ERR_object_too_big :  $m = 'object too big'; break;
+			case ERR_out_of_mem	:  $m = 'out of memory' ; break;
+			case ERR_ctrl_closed	:  $m = 'control closed'; break;
+			case ERR_session_busy	: $m = 'session busy'; break;
+			case ERR_detach_failed	:  $m = 'detach failed'; break;
+			default:
+				$m = 'unknown error';
+		}
+		return $m;		
 	}
 	
 }
