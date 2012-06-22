@@ -135,12 +135,12 @@ class Rserve_Connection {
 			$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 		}
 		if( !$socket ) {
-			throw new Rserve_Exception("Unable to create socket<pre>".socket_strerror(socket_last_error())."</pre>");
+			throw new Rserve_Exception('Unable to create socket ['.socket_strerror(socket_last_error()).']');
 		}
 		//socket_set_option($socket, SOL_TCP, SO_DEBUG,2);
 		$ok = socket_connect($socket, $this->host, $this->port);
 		if( !$ok ) {
-			throw new Rserve_Exception("Unable to connect<pre>".socket_strerror(socket_last_error())."</pre>");
+			throw new Rserve_Exception('Unable to connect ['.socket_strerror(socket_last_error()).']');
 		}
 		$buf = '';
 		$n = socket_recv($socket, $buf, 32, 0);
@@ -170,12 +170,15 @@ class Rserve_Connection {
 	/**
 	 * Parse a response from Rserve
 	 * @param string $r
-	 * @param int	$parser
+	 * @param int $parser
 	 * @return parsed results 
 	 */
-	private function parseResponse($r, $parser) {
-		$i = 20;
-		$buf = $r;
+	private function parseResponse($buf, $parser) {
+		$type = int8($buf, 16);
+		if($type != self::DT_SEXP) { // Check Data type of the packet
+			throw new Rserve_Exception('Unexpected packet Data type (expect DT_SEXP)', $buf);
+		}
+		$i = 20; // header length + 4 bytes (Data part HEADER)
 		$r = NULL;
 		switch($parser) {
 			case self::PARSER_NATIVE:
@@ -207,10 +210,11 @@ class Rserve_Connection {
 	public function evalString($string, $parser = self::PARSER_NATIVE) {
 		$r = $this->command(self::CMD_eval, $string );
 		if( !$r['is_error'] ) {
+			//$this->debugPacket($r['contents']);
 			return $this->parseResponse($r['contents'], $parser);
 		}
 		// TODO: contents and code in exception
-		throw new Rserve_Exception('unable to evaluate');
+		throw new Rserve_Exception('unable to evaluate', $r);
 	}
 
 
@@ -273,10 +277,9 @@ class Rserve_Connection {
 	public function getResponseAsync($socket, $parser = self::PARSER_NATIVE) {
 		$r = $this->getResponse($socket);
 		if( !$r['is_error'] ) {
-			return $this->parseResponse($r['contents'],$parser);
+			return $this->parseResponse($r['contents'], $parser);
 		}
-		// TODO: contents and code in exception
-		throw new Rserve_Exception('unable to evaluate');
+		throw new Rserve_Exception('unable to evaluate', $r);
 	}
 
 	/**
@@ -324,6 +327,20 @@ class Rserve_Connection {
 		return $this->getResponse($socket);
 	}
 
+	public function debugPacket($packet) {
+		/*
+		  [0]  (int) command
+		  [4]  (int) length of the message (bits 0-31)
+		  [8]  (int) offset of the data part
+		  [12] (int) length of the message (bits 32-63)
+		*/
+		$command = int32($packet, 0);
+		$lengthLow = int32($packet, 4);
+		$offset = int32($packet, 8);
+		$lenghtHigh = int32($packet, 12);
+		echo dechex($commant).' Length:'.dechex($lenghtHigh).'-'.dechex($lengthLow).' offset'.$offset."\n";
+	}
+	
 	/**
 	 * Assign a value to a symbol in R
 	 * @param string $symbol name of the variable to set (should be compliant with R syntax !)
@@ -345,7 +362,13 @@ class Rserve_Connection {
 
 }
 
-class Rserve_Exception extends Exception { }
+class Rserve_Exception extends Exception {
+	public $packet;
+	public function __construct($message, $packet=NULL) {
+		parent::__construct($message);
+		$this->packet = $packet;
+	}
+}
 
 class Rserve_Parser_Exception extends Rserve_Exception {
 }

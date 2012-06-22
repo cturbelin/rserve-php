@@ -3,6 +3,8 @@
 // Simple Rserve client for PHP.
 // Supports Rserve protocol 0103 only (used by Rserve 0.5 and higher)
 //
+// NOTE: for a more complete PHP client see http://code.google.com/p/rserve-php
+//
 // (C)Copyright 2009 Simon Urbanek
 // Licensed under GPL v2 or at your option v3
 // 
@@ -32,6 +34,31 @@
 //       are not as erratic as in PHP.
 
 //======= helper functions
+$machine_is_bigendian = pack("s", 1); $machine_is_bigendian = ($machine_is_bigendian[0] == 0);
+function int8($buf, $o=0) { return ord($buf[$o]); }
+function int24($buf, $o=0) { return (ord($buf[$o]) | (ord($buf[$o + 1]) << 8) | (ord($buf[$o + 2]) << 16)); }
+function int32($buf, $o=0) { return (ord($buf[$o]) | (ord($buf[$o + 1]) << 8) | (ord($buf[$o + 2]) << 16) | (ord($buf[$o + 3]) << 24)); }
+function mkint32($i) { $r = chr($i & 255); $i >>= 8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); return $r; }
+function mkint24($i) { $r = chr($i & 255); $i >>= 8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); return $r; }
+function flt64($buf, $o=0) { $ss = substr($buf, $o, 8); if ($machine_is_bigendian) for ($k = 0; $k < 7; $k++) $ss[7 - $k] = $buf[$o + $k]; $r = unpack("d", substr($buf, $o, 8)); return $r[1]; }
+
+function mkp_str($cmd, $string) {
+    $n = strlen($string) + 1; $string .= chr(0);
+    while (($n & 3) != 0) { $string .= chr(1); $n++; }
+    return mkint32($cmd) . mkint32($n + 4) . mkint32(0) . mkint32(0) . chr(4) . mkint24($n) . $string;
+}
+
+function get_rsp($socket) {
+    $n = socket_recv($socket, $buf, 16, 0);
+    if ($n != 16) return FALSE;
+    $len = int32($buf, 4);
+    $ltg = $len;
+    while ($ltg > 0) {
+       $n = socket_recv($socket, $b2, $ltg, 0);
+       if ($n > 0) { $buf .= $b2; unset($b2); $ltg -= $n; } else break;
+    }
+    return $buf;
+}
 
 // parse SEXP results -- limited implementation for now (large packets and some data types are not supported)
 function parse_SEXP($buf, $offset, $attr = NULL) {
@@ -126,6 +153,46 @@ function parse_SEXP($buf, $offset, $attr = NULL) {
 
 //------------ Rserve API functions
 
+// if port is 0 then host is interpreted as unix socket, otherwise host is the host to connect to (default is local) and port is the TCP port number (6311 is the default)
+function Rserve_connect($host="127.0.0.1", $port=6311) {
+    if ($port == 0)
+      $ok = (($socket = socket_create(AF_UNIX, SOCK_STREAM, 0)) and (socket_connect($socket, $host)));
+    else
+      $ok = (($socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) and (socket_connect($socket, $host, $port)));
+    if ($ok) {
+	$n = socket_recv($socket, $buf, 32, 0);
+	if ($n < 32 || strncmp($buf, "Rsrv", 4) != 0) {
+	     echo "Invalid response from server.";
+	     return FALSE;
+	}
+	$rv = substr($buf, 4, 4);
+	if (strcmp($rv, "0103") != 0) {
+	     echo "Unsupported protocol version.";
+	     return FALSE;
+	}
+    } else {
+    	echo "Unable to connect<pre>".socket_strerror(socket_last_error())."</pre>";
+	return FALSE;
+    }
+    return $socket;
+}
+
+function Rserve_eval($socket, $command, $attr = NULL) {
+    $pkt = mkp_str(3, $command);
+    socket_send($socket, $pkt, strlen($pkt), 0);
+    $r = get_rsp($socket);
+    $res = int32($r);
+    $sc = ($res >> 24) & 127;
+    $rr = $res & 255;
+    if ($rr != 1) { echo "eval failed with error code " . $sc; return FALSE; }
+    if (int8($r, 16) != 10) { echo "invalid response (expecting SEXP)"; return FALSE; }
+    $i = 20;
+    return parse_SEXP($r, $i, &$attr);
+}
+
+function Rserve_close($socket) {
+    return socket_close($socket);
+}
 
 //========== FastRWeb - compatible requests - sample use of the client to behave like Rcgi in FastRWeb
 

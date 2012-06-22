@@ -1,0 +1,124 @@
+Any interested developers are welcome to improve Rserve since it is released under GPL. You can download the sources from the download section. As you can easily see from the directory structure I hold the sources in a CVS repository, therefore anyone who wants to contribute to the development should send me an e-mail (Simon.Urbanek@r-project.org) in order to obtain access to the CVS.
+ 
+Technical Documentation for Rserve
+This document describes the protocols and structures used by Rserve (version 0.1-9). This information is helpful for implementing Rserve clients.
+Rserve communication is performed over any reliable connection-oriented protocol (usually TCP/IP; Rserve 0.1-9 supports TCP/IP and local unix sockets). After connection is established, the server sends 32 bytes representing the ID-string defining the capabilities of the server. Each attribute of the ID-string is 4 bytes long and is meant to be user- readable (i.e. use no special characters), and it's a good idea to make "\r\n\r\n" the last attribute.
+
+the ID string must be of the form:
+
+   [0] "Rsrv" - R-server ID signature
+   [4] "0100" - version of the R server protocol
+   [8] "QAP1" - protocol used for communication (here Quad Attributes Packets v1)
+   [12] any additional attributes follow. \r\n and '-' are ignored.
+optional attributes (in any order; it is legitimate to put dummy attributes, like "----" or " " between attributes):
+   "R151" - version of R (here 1.5.1)
+   "ARpt" - authorization required (here "pt"=plain text, "uc"=unix crypt)
+            connection will be closed
+            if the first packet is not CMD_login.
+	    if more AR.. methods are specified, then client is free to
+	    use the one he supports (usually the most secure)
+   "K***" - key if encoded authentification is challenged (*** is the key)
+            for unix crypt the first two letters of the key are the salt
+	    required by the server */
+The protocol specified in the third attribute (here QAP1) is used immediately after the ID string was transmitted.
+QAP1 message oriented protocol
+
+QAP1 (quad attributes protocol v1) is a message oriented protocol, i.e. the initiating side (here the client) sends a message and awaits a response. The message contains both the action to be taken and any necessary data. The response contains a response code and any associated data. Every message consists of a header and data part (which can be empty). The header is structured as follows:
+
+  [0]  (int) command
+  [4]  (int) length of the message (bits 0-31)
+  [8]  (int) offset of the data part
+  [12] (int) length of the message (bits 32-63)
+command specifies the request or response type.
+length specifies the number of bytes belonging to this message (excluding the header).
+offset specifies the offset of the data part, where 0 means directly after the header (which is normally the case)
+length2 high bits of the length (must be 0 if the packet size is smaller than 4GB)
+The header must always be transmitted en-block. Data part can be split into packets of an arbitrary size. Each message consists of 16 bytes (the header) plus data. Therefore a message consists of length+16 bytes (where length is the size of the data payload).
+
+The data part contains any additional parameters that are send along with the command. Each parameter consists of a 4-byte header:
+
+  [0]  (byte) type
+  [1]  (24-bit int) length
+Types used by the current Rserve implementation (for list of all supported types see Rsrv.h):
+DT_INT (4 bytes) integer
+DT_STRING (n bytes) null terminated string
+DT_BYTESTREAM (n bytes) any binary data
+DT_SEXP R's encoded SEXP, see below
+all int and double entries throughout the transfer are encoded in Intel-endianess format:
+int=0x12345678 -> char[4]=(0x78,0x56,x34,0x12) functions/macros for converting from native to protocol format are available in Rsrv.h.
+Commands supported by Rserve
+
+Supported commands:
+
+    command           parameters    | response data
+
+    CMD_login         DT_STRING     | -
+    CMD_voidEval      DT_STRING     | -
+    CMD_eval          DT_STRING     | DT_SEXP
+    CMD_shutdown      [DT_STRING]   | -
+    CMD_openFile      DT_STRING     | -
+    CMD_createFile    DT_STRING     | -
+    CMD_closeFile     -             | -
+    CMD_readFile      [DT_INT]      | DT_BYTESTREAM
+    CMD_writeFile     DT_BYTESTREAM | -
+    CMD_removeFile    DT_STRING     | -
+    CMD_setSEXP       DT_STRING,    | -
+                      DT_SEXP
+    CMD_assignSEXP    DT_STRING,    | -
+                      DT_SEXP
+    CMD_setBufferSize DT_INT        | -
+    CMD_setEncoding   DT_STRING     | - (since 0.5-3)
+    CMD_ctrlEval      DT_STRING     | - (since 0.6-0)
+    CMD_ctrlSource    DT_STRING     | - (since 0.6-0)
+    CMD_ctrlShutdown  -             | - (since 0.6-0)
+  
+(Parameters in brackets [] are optional)
+Responses:
+The CMD_RESP mask is set for all responses. Each response consists of the response command (RESP_OK or RESP_ERR - least significant 24 bit) and the status code (most significant 8 bits). For a list of all currently supported status codes see ERR_... in Rsrv.h.
+
+Note: Commands with four highest bits set (0xf0) are reserved as internal/special and their data payload does not follow the regular pattern. They should not be used by clients.
+
+Encoding of SEXP R expression
+
+R SEXP value (DT_SEXP) are recursively encoded in a similar way as the parameter attributes. Each SEXP consists of a 4-byte header and the actual contents. The header is of the form:
+
+  [0]  (byte) eXpression Type
+  [1]  (24-bit int) length
+The expression type consists of the actual type (least significant 6 bits) and attributes. Follwing expression types are supported:
+  XT_NULL          data: - 
+- XT_INT           data: (4) int 
+- XT_DOUBLE        data: (8) double 
+- XT_STR           data: (n) char null-term. strg. 
+- XT_LANG          data: same as XT_LIST
+- XT_SYM           data: (n) char symbol name 
+- XT_BOOL          data: (1) byte boolean
+			      (1=TRUE, 0=FALSE, 2=NA)
++ XT_S4            data: -
+
+  XT_VECTOR        data: (n*?) SEXP 
+- XT_LIST          data: SEXP head, SEXP vals, [SEXP tag]
+  XT_CLOS          data: SEXP formals, SEXP body
++ XT_SYMNAME       data: same as XT_STR
++ XT_LIST_NOTAG    data: same as XT_VECTOR
++ XT_LIST_TAG      data: SEXP tag, SEXP value, ...
++ XT_LANG_NOTAG    data: same as XT_LIST_NOTAG (LANGSXP)
++ XT_LANG_TAG      data: same as XT_LIST_TAG (LANGSXP)
++ XT_VECTOR_EXP    data: same as XT_VECTOR (EXPSXP)
+
+  XT_ARRAY_INT     data: (n*4) int,int,.. 
+  XT_ARRAY_DOUBLE  data: (n*8) double,double,.. 
+  XT_ARRAY_STR     data: (?) string,string,.. 
+  XT_ARRAY_BOOL    data: (n) byte,byte,.. 
++ XT_RAW           data: (1) int n (n) byte,byte,..
++ XT_ARRAY_CPLX    data: (n) double(re),double(im),..
+
+  XT_UNKNOWN       data: (4) int - SEXP type as defined in R
+
+- = removed in protocol 0103 (Rserve 0.5)
++ = new since protocol 0103 (Rserve 0.5)
+Attributes:
+XT_HAS_ATTR - if this flag is set then the SEXP has an attribute list which is stored before the actual expression. In this case the layout looks as follows:
+  [0]   (4) header SEXP: len=4+m+n, XT_HAS_ATTR is set
+  [4]   (4) header attribute SEXP: len=n
+  [8]   (n) data attribute SEXP
+  [8+n] (m) data SEXP
