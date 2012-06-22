@@ -7,11 +7,11 @@
  * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
  * $Id$
  */
-require_once 'funclib.php';
+require_once 'helpers.php';
 require_once 'Parser.php';
 
 /**
- * Handle Connection and communicating with Rserve instance
+ * Handle Connection and communicating with Rserve instance (QAP1 protocol)
  * @author Clément Turbelin
  *
  */
@@ -222,10 +222,11 @@ class Rserve_Connection {
 	public function getResponse($socket) {
 		$n = socket_recv($socket, $buf, 16, 0);
 		if ($n != 16) {
+			// header should be sent in one block of 16 bytes
 			return FALSE;
 		}
 		$len = int32($buf, 4);
-		$ltg = $len;
+		$ltg = $len; // length to get
 		while ($ltg > 0) {
 			$n = socket_recv($socket, $b2, $ltg, 0);
 			if ($n > 0) {
@@ -241,7 +242,7 @@ class Rserve_Connection {
 			'code'=>$res,
 			'is_error'=>($res & 15) != 1,
 			'error'=>($res >> 24) & 127,
-			'contents'=>$buf
+			'contents'=>$buf // Buffer contains all message including header
 		));
 	}
 
@@ -310,7 +311,7 @@ class Rserve_Connection {
 			$socket = $this->socket;
 		}
 		
-		$i = $pkt = _rserve_make_packet($command, $v);
+		$pkt = _rserve_make_packet($command, $v);
 		
 		socket_send($socket, $pkt, strlen($pkt), 0);
 

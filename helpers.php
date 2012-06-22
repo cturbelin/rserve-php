@@ -142,27 +142,3 @@ function _rserve_make_data($type, $string) {
 		$s .= str_repeat(chr(0), $pad);
 	}
 }
-
-/**
- * Parse a Rserve packet from socket connection
- * @param unknown_type $socket
- */
-function _rserve_get_response($socket) {
-	$n = socket_recv($socket, $buf, 16, 0);
-	if ($n != 16) {
-		return FALSE;		
-	}
-	$len = int32($buf, 4);
-	$ltg = $len;
-	while ($ltg > 0) {
-		$n = socket_recv($socket, $b2, $ltg, 0);
-		if ($n > 0) {
-			$buf .= $b2; 
-			unset($b2); 
-			$ltg -= $n; 
-		} else {
-			 break;	
-		}
-	}
-	return $buf;
-}
