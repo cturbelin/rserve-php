@@ -174,11 +174,11 @@ class Rserve_Connection {
 	 * @return parsed results 
 	 */
 	private function parseResponse($buf, $parser) {
-		$type = int8($buf, 16);
+		$type = int8($buf, 0);
 		if($type != self::DT_SEXP) { // Check Data type of the packet
 			throw new Rserve_Exception('Unexpected packet Data type (expect DT_SEXP)', $buf);
 		}
-		$i = 20; // header length + 4 bytes (Data part HEADER)
+		$i = 4; // + 4 bytes (Data part HEADER)
 		$r = NULL;
 		switch($parser) {
 			case self::PARSER_NATIVE:
@@ -210,27 +210,29 @@ class Rserve_Connection {
 	public function evalString($string, $parser = self::PARSER_NATIVE) {
 		$r = $this->command(self::CMD_eval, $string );
 		if( !$r['is_error'] ) {
-			//$this->debugPacket($r['contents']);
+			//$this->debugPacket($r);
 			return $this->parseResponse($r['contents'], $parser);
 		}
-		// TODO: contents and code in exception
 		throw new Rserve_Exception('unable to evaluate', $r);
 	}
 
-
+	
+	
 	/**
 	 * Get the response from a command
 	 * @param resource	$socket
 	 * @return array contents
 	 */
 	public function getResponse($socket) {
-		$n = socket_recv($socket, $buf, 16, 0);
+		$header = NULL;
+		$n = socket_recv($socket, $header, 16, 0);
 		if ($n != 16) {
 			// header should be sent in one block of 16 bytes
 			return FALSE;
 		}
-		$len = int32($buf, 4);
+		$len = int32($header, 4);
 		$ltg = $len; // length to get
+		$buf = '';
 		while ($ltg > 0) {
 			$n = socket_recv($socket, $b2, $ltg, 0);
 			if ($n > 0) {
@@ -241,12 +243,13 @@ class Rserve_Connection {
 			 break;
 			}
 		}
-		$res = int32($buf);
+		$res = int32($header);
 		return(array(
 			'code'=>$res,
 			'is_error'=>($res & 15) != 1,
 			'error'=>($res >> 24) & 127,
-			'contents'=>$buf // Buffer contains all message including header
+			'header'=>$header,
+			'contents'=>$buf // Buffer contains messages part
 		));
 	}
 
@@ -334,11 +337,24 @@ class Rserve_Connection {
 		  [8]  (int) offset of the data part
 		  [12] (int) length of the message (bits 32-63)
 		*/
-		$command = int32($packet, 0);
-		$lengthLow = int32($packet, 4);
-		$offset = int32($packet, 8);
-		$lenghtHigh = int32($packet, 12);
-		echo dechex($commant).' Length:'.dechex($lenghtHigh).'-'.dechex($lengthLow).' offset'.$offset."\n";
+		$header = $packet['header'];
+		$command = int32($header, 0);
+		$lengthLow = int32($header, 4);
+		$offset = int32($header, 8);
+		$lenghtHigh = int32($header, 12);
+		echo '[header:<'.dechex($command).' Length:'.dechex($lenghtHigh).'-'.dechex($lengthLow).' offset'.$offset.">\n";
+		$buf = $packet['contents'];
+		$len = strlen($buf);
+		$i = 0;
+		while($len > 0) {
+			$type = int8($buf, $i);
+			$m_len = int24($buf, 1);
+			$i += 4;
+			$i += $m_len;
+			$len -= $m_len + 4;
+			echo 'data:<'.$this->getDataTypeTitle($type).' length:'.$m_len.">\n"; 
+		}
+		echo "]\n";
 	}
 	
 	/**
@@ -360,6 +376,37 @@ class Rserve_Connection {
 		}
 		*/
 
+	public function getDataTypeTitle($x) {
+		switch($x) {
+		case self::DT_INT : 
+			$m = 'int';
+			break;
+		case self::DT_CHAR : 			
+			$m = 'char';
+			break;
+		case self::DT_DOUBLE : 			
+			$m = 'double';
+			break;
+		case self::DT_STRING : 			
+			$m = 'string';
+			break;
+		case self::DT_BYTESTREAM : 			
+			$m = 'stream';
+			break;
+			
+		case self::DT_SEXP : 			
+			$m = 'sexp';
+			break;
+			
+		case self::DT_ARRAY :			
+			$m = 'array';
+			break;
+		default:
+			$m = 'unknown';			
+		}
+		return $m;
+	}
+	
 }
 
 class Rserve_Exception extends Exception {
