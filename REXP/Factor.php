@@ -23,25 +23,35 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 	
 	/**
     * get levels
+    * @return string
     */
     public function getLevels() {
 		return $this->levels;
 	}
 	
 	/**
-    * Set levels
+    * Set levels from
     */
     public function setLevels($levels) {
+    	if($levels instanceof Rserve_REXP_String) {
+    		$levels = $levels->getValues();
+    	}
 		$this->levels = $levels;
 	}
 	
-	public function asCharacters() {
+	/**
+	 * Convert an levels encoded vector to a character vector
+	 * @return Rserve_REXP
+	 */
+	public function asCharacter() {
 		$levels = $this->levels;
 		$r = array();
 		foreach($this->values as $v) {
 			$r[] = $levels[$v];
 		}
-		return $r;
+		$rexp = new Rserve_REXP_String();
+		$rexp->setValues($r);
+		return $$rexp;
 	}
 	
 	public function getType() {

@@ -22,8 +22,6 @@ class SessionTest extends PHPUnit_Framework_TestCase {
 		
 		$session = $cnx->detachSession();
 		
-		//$cnx->close();
-		
 		$cnx = new Rserve_Connection($session);
 		
 		$x = $cnx->evalString('x');

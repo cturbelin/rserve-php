@@ -98,7 +98,7 @@ class Rserve_REXP_Vector extends Rserve_REXP {
 	}
 	
 	/**
-	 * HTML representation for a value
+	 * HTML representation for a single value of the vector
 	 * @param mixed $v
 	 */
 	protected function valueToHTML($v) {

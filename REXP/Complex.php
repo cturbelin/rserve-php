@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Complex values
+ * Each complex number is stored in an array(real part, imaginary part)
+ * @author Clément Turbelin
+ *
+ */
 class Rserve_REXP_Complex extends Rserve_REXP_Vector {
 	
 	
