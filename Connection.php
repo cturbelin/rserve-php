@@ -382,8 +382,7 @@ class Rserve_Connection {
 	 * send a command to Rserve
 	 * @param int $command command code
 	 * @param string $data data packets
-	 * @param	resource	$socket socket to use
-	 * @return int	if $async, the new socket
+	 * @return int	if $async, TRUE
 	 */
 	protected function sendCommand($command, $data) {
 		
@@ -402,6 +401,10 @@ class Rserve_Connection {
 		return $this->getResponse();
 	}
 
+	/**
+	 * Debug a Rserve packet
+	 * @param array|string $packet
+	 */
 	public function debugPacket($packet) {
 		/*
 		  [0]  (int) command
@@ -442,6 +445,10 @@ class Rserve_Connection {
 	}
 	
 
+	/**
+	 * Data Type value to label
+	 * @param int $x
+	 */
 	public function getDataTypeTitle($x) {
 		switch($x) {
 		case self::DT_INT : 
@@ -473,6 +480,10 @@ class Rserve_Connection {
 		return $m;
 	}
 	
+	/**
+	 * Translate an error code to an error message
+	 * @param int $code
+	 */
 	public function getErrorMessage($code) {
 		switch($code) {
 			case self::ERR_auth_failed	: $m = 'auth failed'; break;
