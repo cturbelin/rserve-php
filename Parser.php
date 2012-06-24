@@ -756,13 +756,10 @@ class Rserve_Parser {
 				$n = count($vv);
 				for($i = 0; $i < $n; ++$i) {
 					$v = $vv[$i];
-					if( is_null($v) ) {
-						if( ord($v[0]) == 255 ) {
-							$contents .= chr(255);
-							++$o;
-						}
+					if( !is_null($v) ) {
 						$contents .= $v;
-						$o += strlen($v);
+						$contents .= chr(0);
+						$o += strlen($v) + 1;
 					} else {
 						$contents .= chr(255).chr(0);
 						$o += 2;

@@ -58,6 +58,8 @@ class Rserve_Connection {
 	const CMD_ctrlSource	= 0x45;
 	const CMD_ctrlShutdown	= 0x44;
 
+	const CMD_Response = 0x10000;
+	
 	// errors as returned by Rserve
 	const ERR_auth_failed	= 0x41;
 	const ERR_conn_broken	= 0x42;
@@ -172,30 +174,30 @@ class Rserve_Connection {
 				$msg = $this->getErrorMessage($r['error']);
 				throw new Rserve_Exception('invalid session key : '.$msg);
 			}
-			
-		} else {
-			// No session, check handshake
-			$buf = '';
-			$n = socket_recv($socket, $buf, 32, 0);
-			if( $n < 32 || strncmp($buf, 'Rsrv', 4) != 0 ) {
-				throw new Rserve_Exception('Invalid response from server.');
+			return;
+		} 
+		
+		// No session, check handshake
+		$buf = '';
+		$n = socket_recv($socket, $buf, 32, 0);
+		if( $n < 32 || strncmp($buf, 'Rsrv', 4) != 0 ) {
+			throw new Rserve_Exception('Invalid response from server.');
+		}
+		$rv = substr($buf, 4, 4);
+		if( strcmp($rv, '0103') != 0 ) {
+			throw new Rserve_Exception('Unsupported protocol version.');
+		}
+		for($i = 12; $i < 32; $i += 4) {
+			$attr = substr($buf, $i, $i + 4);
+			if($attr == 'ARpt') {
+				$this->auth_request = TRUE;
+				$this->auth_method = 'plain';
+			} elseif($attr == 'ARuc') {
+				$this->auth_request = TRUE;
+				$this->auth_method = 'crypt';
 			}
-			$rv = substr($buf, 4, 4);
-			if( strcmp($rv, '0103') != 0 ) {
-				throw new Rserve_Exception('Unsupported protocol version.');
-			}
-			for($i = 12; $i < 32; $i += 4) {
-				$attr = substr($buf, $i, $i + 4);
-				if($attr == 'ARpt') {
-					$this->auth_request = TRUE;
-					$this->auth_method = 'plain';
-				} elseif($attr == 'ARuc') {
-					$this->auth_request = TRUE;
-					$this->auth_method = 'crypt';
-				}
-				if($attr[0] === 'K') {
-					$key = substr($attr, 1, 3);
-				}
+			if($attr[0] === 'K') {
+				$key = substr($attr, 1, 3);
 			}
 		}
 	}
@@ -393,18 +395,30 @@ class Rserve_Connection {
 		  [8]  (int) offset of the data part
 		  [12] (int) length of the message (bits 32-63)
 		*/
-		$header = $packet['header'];
+		if(is_array($packet))  {
+			$buf = $packet['contents'];
+			$header = $packet['header'];	
+		} else {
+			$header = substr($packet, 0, 16);
+			$buf = substr($packet, 16); 
+		}
 		$command = int32($header, 0);
 		$lengthLow = int32($header, 4);
 		$offset = int32($header, 8);
 		$lenghtHigh = int32($header, 12);
-		echo '[header:<'.dechex($command).' Length:'.dechex($lenghtHigh).'-'.dechex($lengthLow).' offset'.$offset.">\n";
-		$buf = $packet['contents'];
+		if($command & self::CMD_Response) {
+			$is_error = $command & 15 != 1;
+			$cmd = 'CMD Response'.(($is_error) ? 'OK' : 'Error');
+			$err = ($command >> 24) & 0x7F;
+		} else {
+			$cmd = dechex($command) & 0xFFF;
+		}
+		echo '[header:<'.$cmd.' Length:'.dechex($lenghtHigh).'-'.dechex($lengthLow).' offset'.$offset.">\n";
 		$len = strlen($buf);
 		$i = 0;
 		while($len > 0) {
 			$type = int8($buf, $i);
-			$m_len = int24($buf, 1);
+			$m_len = int24($buf, $i+1);
 			$i += 4;
 			$i += $m_len;
 			$len -= $m_len + 4;
