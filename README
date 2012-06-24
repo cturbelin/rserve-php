@@ -49,8 +49,24 @@ The use of the library is simple
 2. Send R commands and get the results as Php array
 
   $result = $cnx->evalString('x ="Hello world !"; x');
+  
+  // Get results as a REXP object tree 
+  $result = $cnx->evalString('x="Toto is my Hero"', Rserve_Connection::PARSER_REXP);
+  
+  // Get as wrapped native array (object with array behaviour and attributes)
+  $result = $cnx->evalString('x="Toto is my Hero"', Rserve_Connection::PARSER_NATIVE_WRAPPED);
+ 
+This will produce a php array containing R results (using native array parser). 
+Others parsers could be used by using $parser parameters (@see Rserve_Connection)
 
-This will produce a php array containing R results (using native array parser). Others parsers could be used by using $parser parameters (@see Rserve_Connection)
+Async Mode
+-----------
+
+Several functions allow to use connection in async mode
+
+* getSocket() to get the socket an set some options
+* setAsync() allow to set the async mode
+* getResults($parser) : get and parse the results after a call to evalString() in async mode
 
 Contacts
 --------

@@ -87,6 +87,8 @@ class Rserve_Connection {
 	private $auth_method;
 	
 	private $debug;
+	
+	private $ascync;
 
 	/**
 	 * initialization of the library
@@ -118,7 +120,7 @@ class Rserve_Connection {
 	 *  @param int $port if 0 then host is interpreted as unix socket,
 	 *  
 	 */
-	public function __construct($host='127.0.0.1', $port = 6311, $debug = FALSE) {
+	public function __construct($host='127.0.0.1', $port = 6311, $params=array()) {
 		if( !self::$init ) {
 			self::init();
 		}
@@ -135,8 +137,9 @@ class Rserve_Connection {
 			$this->port = $port;
 			$session = NULL;
 		}
-		$this->debug = $debug;
-		$this->socket = $this->openSocket($session);
+		$this->debug = isset($params['debug']) ? (bool)$params['debug'] : FALSE;
+		$this->async = isset($params['async']) ? (bool)$params['async'] : FALSE;
+		$this->openSocket($session);
 	}
 
 	/**
@@ -157,13 +160,14 @@ class Rserve_Connection {
 		if( !$ok ) {
 			throw new Rserve_Exception('Unable to connect ['.socket_strerror(socket_last_error()).']');
 		}
+		$this->socket = $socket;
 		if( !is_null($session_key) ) {
 			// Try to resume session
 			$n = socket_send($socket, $session_key, 32, 0);
 			if($n < 32) {
 				throw new Rserve_Exception('Unable to send session key');
 			}
-			$r = $this->getResponse($socket);
+			$r = $this->getResponse();
 			if($r['is_error']) {
 				$msg = $this->getErrorMessage($r['error']);
 				throw new Rserve_Exception('invalid session key : '.$msg);
@@ -194,10 +198,26 @@ class Rserve_Connection {
 				}
 			}
 		}
-		return $socket;
 	}
-
+	
 	/**
+	 * Allow accces to socket
+	 */
+	public function getSocket() {
+		return $this->socket;
+	}	
+	
+	
+	/**
+	 * Set Asynchronous mode
+	 * @param bool $async
+	 */
+	public function setAsync($async) {
+		$this->async = (bool)$async;
+	}
+	
+	/**
+	 * 
 	 * Parse a response from Rserve
 	 * @param string $r
 	 * @param int $parser
@@ -241,10 +261,12 @@ class Rserve_Connection {
 		
 		$data = _rserve_make_data(self::DT_STRING, $string);
 		
-		$r = $this->command(self::CMD_eval, $data );
-		
+		$r = $this->sendCommand(self::CMD_eval, $data );
+		if($this->async) {
+			return TRUE;
+		}
 		if( !$r['is_error'] ) {
-			return $this->parseResponse($r['contents'], $parser);
+				return $this->parseResponse($r['contents'], $parser);
 		}
 		throw new Rserve_Exception('unable to evaluate', $r);
 	}
@@ -257,7 +279,7 @@ class Rserve_Connection {
 	 * @throws Rserve_Exception
 	 */
 	public function detachSession() {
-		$r = $this->command(self::CMD_detachSession, NULL);
+		$r = $this->sendCommand(self::CMD_detachSession, NULL);
 		if( !$r['is_error'] ) {
 			$x = $r['contents'];
 			if( strlen($x) != (32+3*4) ) {
@@ -279,9 +301,9 @@ class Rserve_Connection {
 	 * @param resource	$socket
 	 * @return array contents
 	 */
-	public function getResponse($socket) {
+	protected function getResponse() {
 		$header = NULL;
-		$n = socket_recv($socket, $header, 16, 0);
+		$n = socket_recv($this->socket, $header, 16, 0);
 		if ($n != 16) {
 			// header should be sent in one block of 16 bytes
 			return FALSE;
@@ -290,7 +312,7 @@ class Rserve_Connection {
 		$ltg = $len; // length to get
 		$buf = '';
 		while ($ltg > 0) {
-			$n = socket_recv($socket, $b2, $ltg, 0);
+			$n = socket_recv($this->socket, $b2, $ltg, 0);
 			if ($n > 0) {
 				$buf .= $b2;
 				unset($b2);
@@ -311,30 +333,22 @@ class Rserve_Connection {
 
 	/**
 	 * Create a new connection to Rserve for async calls
-	 * @return	resource the socket ref
+	 * @return	Rserve_Connection
 	 */
 	public function newConnection() {
-		return $this->openSocket();
+		$newConnection = clone($this);
+		$newConnection->openSocket();
+		return $newConnection;	
 	}
 
-	/**
-	 * Evaluate string asyncronously
-	 * @param resource	$socket
-	 * @param string $string
-	 * @return results @see evalString()
-	 */
-	public function evalStringAsync($socket, $string) {
-		return $this->command(self::CMD_eval, $string, $socket);
-	}
 
 	/**
-	 * Get response from socket, for async
-	 * @param resource $socket
+	 * Get results from an eval command  in async mode
 	 * @param int $parser
 	 * @return mixed contents of response
 	 */
-	public function getResponseAsync($socket, $parser = self::PARSER_NATIVE) {
-		$r = $this->getResponse($socket);
+	public function getResults($parser = self::PARSER_NATIVE) {
+		$r = $this->getResponse();
 		if( !$r['is_error'] ) {
 			return $this->parseResponse($r['contents'], $parser);
 		}
@@ -342,22 +356,10 @@ class Rserve_Connection {
 	}
 
 	/**
-	 * Close a connection for async calling
-	 * @param resource $socket
-	 * @return bool
-	 */
-	public function closeConnection($socket) {
-		if($socket) {
-			return socket_close($socket);
-		}
-		return TRUE;
-	}
-
-	/**
 	 * Close the current connection
 	 */
 	public function close() {
-		return $this->closeConnection($this->socket);
+		return socket_close($this->socket);
 	}
 
 	/**
@@ -367,11 +369,7 @@ class Rserve_Connection {
 	 * @param	resource	$socket socket to use
 	 * @return int	if $async, the new socket
 	 */
-	protected function command($command, $data, $socket = 0) {
-		
-		if ( !is_resource($socket) ) {
-			$socket = $this->socket;
-		}
+	protected function sendCommand($command, $data) {
 		
 		$pkt = _rserve_make_packet($command, $data);
 		
@@ -379,15 +377,13 @@ class Rserve_Connection {
 			$this->debugPacket($pkt);
 		}
 		
-		socket_send($socket, $pkt, strlen($pkt), 0);
+		socket_send($this->socket, $pkt, strlen($pkt), 0);
 
-		// if different, async call
-		if ( $socket !== $this->socket) {
-			return;
+		if($this->async) {
+			return TRUE;
 		}
-
 		// get response
-		return $this->getResponse($socket);
+		return $this->getResponse();
 	}
 
 	public function debugPacket($packet) {
@@ -500,6 +496,11 @@ class Rserve_Session {
 		$this->key = $key;
 		$this->port = $port;
 		$this->host = $host;
+	}
+	
+	public function __toString() {
+		$k = base64_encode($this->key);
+		return sprintf('Session %s:%d identified by base64:%s', $this->host, $this->port, $k);
 	}
 
 }
