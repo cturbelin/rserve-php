@@ -101,18 +101,12 @@ function flt64($buf, $o = 0) {
  * @param int $cmd command identifier
  * @param string $string contents of the message
  */
-function _rserve_make_packet($cmd, $string) {
-	$n = strlen($string) + 1; 
-	$string .= chr(0);
-	while (($n & 3) != 0) { 
-		$string .= chr(1); 
-		$n++; 
-	}
+function _rserve_make_packet($cmd, $data) {
 	// [0]  (int) command
   	// [4]  (int) length of the message (bits 0-31)
   	// [8]  (int) offset of the data part
   	// [12] (int) length of the message (bits 32-63)
-	return mkint32($cmd) . mkint32($n + 4) . mkint32(0) . mkint32(0) . chr(4) . mkint24($n) . $string;
+	return mkint32($cmd) . mkint32(strlen($data)) . mkint32(0) . mkint32(0).$data;
 }
 
 /**
@@ -121,24 +115,20 @@ function _rserve_make_packet($cmd, $string) {
  * @param unknown_type $string NULL terminated string
  */
 function _rserve_make_data($type, $string) {
-	$s = '';
-	$len = strlen($string); // Length of the binary string
-	$is_large = $len > 0xfffff0;
-	$pad = 0; // Number of padding needed
-	while( ($len & 3) != 0) { 
-		// ensure the data packet size is divisible by 4
-		++$len;
-		++$pad;
-	} 
-	$s .= chr($type & 255) | ($is_large ? Rserve_Connection::DT_LARGE : 0);
-	$s .= chr($len & 255);
-	$s .= chr( ($len & 0xff00) >> 8);
-	$s .= chr( ($len & 0xff0000) >> 16); 	
-	if($is_large) {
-		$s .= chr(($len & 0xff000000) >> 24).chr(0).chr(0).chr(0);
+	if($type == Rserve_Connection::DT_STRING) {
+		$string .= chr(0);
 	}
-	$s .= $string;
+	$len = strlen($string); // Length of the binary string
+	$pad = ($len % 4); // Number of padding needed
+	if($pad > 0) {
+		$pad = 4 - $pad;
+	}
+	$len += $pad; 
+	$s = chr($type & 255); // [0]  Type
+	$s .= mkint24($len); // [1] Length (24bits)
+	$s .= $string; // Data
 	if($pad) {
 		$s .= str_repeat(chr(0), $pad);
 	}
+	return $s;
 }

@@ -85,6 +85,8 @@ class Rserve_Connection {
 	private $socket;
 	private $auth_request;
 	private $auth_method;
+	
+	private $debug;
 
 	/**
 	 * initialization of the library
@@ -133,6 +135,7 @@ class Rserve_Connection {
 			$this->port = $port;
 			$session = NULL;
 		}
+		$this->debug = $debug;
 		$this->socket = $this->openSocket($session);
 	}
 
@@ -235,9 +238,12 @@ class Rserve_Connection {
 	 * @param int $parser
 	 */
 	public function evalString($string, $parser = self::PARSER_NATIVE) {
-		$r = $this->command(self::CMD_eval, $string );
+		
+		$data = _rserve_make_data(self::DT_STRING, $string);
+		
+		$r = $this->command(self::CMD_eval, $data );
+		
 		if( !$r['is_error'] ) {
-			//$this->debugPacket($r);
 			return $this->parseResponse($r['contents'], $parser);
 		}
 		throw new Rserve_Exception('unable to evaluate', $r);
@@ -251,9 +257,8 @@ class Rserve_Connection {
 	 * @throws Rserve_Exception
 	 */
 	public function detachSession() {
-		$r = $this->command(self::CMD_detachSession, '');
+		$r = $this->command(self::CMD_detachSession, NULL);
 		if( !$r['is_error'] ) {
-			//$x = $this->parseResponse($r['contents'], self::PARSER_NATIVE);
 			$x = $r['contents'];
 			if( strlen($x) != (32+3*4) ) {
 				throw new Rserve_Exception('Invalid response to detach');
@@ -265,12 +270,9 @@ class Rserve_Connection {
 			
 			return $session;
 		}
-		return $r;
+		throw new Rserve_Exception('Unable to detach sesssion', $r);
 	}
 	
-	public function attachSession() {
-		
-	}
 	
 	/**
 	 * Get the response from a command
@@ -359,19 +361,23 @@ class Rserve_Connection {
 	}
 
 	/**
-	 * send a command to R
+	 * send a command to Rserve
 	 * @param int $command command code
-	 * @param string $v command contents
+	 * @param string $data data packets
 	 * @param	resource	$socket socket to use
 	 * @return int	if $async, the new socket
 	 */
-	private function command($command, $v, $socket = 0) {
+	protected function command($command, $data, $socket = 0) {
 		
 		if ( !is_resource($socket) ) {
 			$socket = $this->socket;
 		}
 		
-		$pkt = _rserve_make_packet($command, $v);
+		$pkt = _rserve_make_packet($command, $data);
+		
+		if($this->debug) {
+			$this->debugPacket($pkt);
+		}
 		
 		socket_send($socket, $pkt, strlen($pkt), 0);
 
@@ -411,24 +417,6 @@ class Rserve_Connection {
 		echo "]\n";
 	}
 	
-	/**
-	 * Assign a value to a symbol in R
-	 * @param string $symbol name of the variable to set (should be compliant with R syntax !)
-	 * @param Rserve_REXP $value value to set
-	 Commented because not ready for this release
-	 public function assign($symbol, $value) {
-		if(! is_object($symbol) and !$symbol instanceof Rserve_REXP_Symbol) {
-		$symbol = (string)$symbol;
-		$s = new Rserve_REXP_Symbol();
-		$s->setValue($symbol);
-		}
-		if(!is_object($value) AND ! $value instanceof Rserve_REXP) {
-		throw new InvalidArgumentException('value should be REXP object');
-		}
-		$contents .= Rserve_Parser::createBinary($s);
-		$contents .= Rserve_Parser::createBinary($value);
-		}
-		*/
 
 	public function getDataTypeTitle($x) {
 		switch($x) {
@@ -463,22 +451,22 @@ class Rserve_Connection {
 	
 	public function getErrorMessage($code) {
 		switch($code) {
-			case ERR_auth_failed	: $m = 'auth failed'; break;
-			case ERR_conn_broken	: $m = 'connexion broken'; break;
-			case ERR_inv_cmd		:  $m = 'invalid command'; break;
-			case ERR_inv_par		:  $m = 'auth invalid parameter'; break;
-			case ERR_Rerror		:  $m = 'R error'; break;
-			case ERR_IOerror		:  $m = 'IO error'; break;
-			case ERR_not_open		:  $m = 'not open'; break;
-			case ERR_access_denied :  $m = 'access denied'; break;
-			case ERR_unsupported_cmd: $m = 'unsupported command'; break;
-			case ERR_unknown_cmd	:  $m = 'unknown command'; break;
-			case ERR_data_overflow	:  $m = 'data overflow'; break;
-			case ERR_object_too_big :  $m = 'object too big'; break;
-			case ERR_out_of_mem	:  $m = 'out of memory' ; break;
-			case ERR_ctrl_closed	:  $m = 'control closed'; break;
-			case ERR_session_busy	: $m = 'session busy'; break;
-			case ERR_detach_failed	:  $m = 'detach failed'; break;
+			case self::ERR_auth_failed	: $m = 'auth failed'; break;
+			case self::ERR_conn_broken	: $m = 'connexion broken'; break;
+			case self::ERR_inv_cmd		:  $m = 'invalid command'; break;
+			case self::ERR_inv_par		:  $m = 'invalid parameter'; break;
+			case self::ERR_Rerror		:  $m = 'R error'; break;
+			case self::ERR_IOerror		:  $m = 'IO error'; break;
+			case self::ERR_not_open		:  $m = 'not open'; break;
+			case self::ERR_access_denied :  $m = 'access denied'; break;
+			case self::ERR_unsupported_cmd: $m = 'unsupported command'; break;
+			case self::ERR_unknown_cmd	:  $m = 'unknown command'; break;
+			case self::ERR_data_overflow	:  $m = 'data overflow'; break;
+			case self::ERR_object_too_big :  $m = 'object too big'; break;
+			case self::ERR_out_of_mem	:  $m = 'out of memory' ; break;
+			case self::ERR_ctrl_closed	:  $m = 'control closed'; break;
+			case self::ERR_session_busy	: $m = 'session busy'; break;
+			case self::ERR_detach_failed	:  $m = 'detach failed'; break;
 			default:
 				$m = 'unknown error';
 		}
