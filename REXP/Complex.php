@@ -9,9 +9,9 @@
 class Rserve_REXP_Complex extends Rserve_REXP_Vector {
 	
 	
-	private function getCplx($i, $part) {
-		if( !is_null($i) ) {
-			$v = $this->at($i);
+	private function getCplx($index, $part) {
+		if( !is_null($index) ) {
+			$v = $this->at($index);
 			if( is_array($v) ) {
 				return $v[$part];
 			}
@@ -24,12 +24,20 @@ class Rserve_REXP_Complex extends Rserve_REXP_Vector {
 		return $r;
 	}
 	
-	public function getImaginary($i = null) {
-		return $this->getCplx($i, 1);
+	/**
+	* Get imaginary part of vector
+	* @param int index of vector
+	*/
+	public function getImaginary($index = null) {
+		return $this->getCplx($index, 1);
 	}
     
-	public function getReal($i = null) {
-		return $this->getCplx($i, 0);
+	/**
+	* Get real part of vector
+	* @param int index of vector
+	*/
+	public function getReal($index = null) {
+		return $this->getCplx($index, 0);
 	}
     
 	protected function valueToHTML($v) {
