@@ -636,7 +636,7 @@ class Rserve_Parser {
             */
 			default:
 				// handle unknown type
-                $a = Rserve_REXP_Unknown($ra);
+                $a = new Rserve_REXP_Unknown($ra);
 		}
 		if( $attr && is_object($a) ) {
 			$a->setAttributes($attr);
@@ -801,7 +801,7 @@ class Rserve_Parser {
 
 			case self::XT_SYMNAME:
 			case self::XT_STR:
-				$s = (string)$value->getValue();
+				$s = (string)$value->getValues();
 				$contents .= $s;
 				$o += strlen($s);
 				$contents .= chr(0);
