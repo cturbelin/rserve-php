@@ -36,6 +36,8 @@ You can run tests using phpunit
 * define the constant RSERVE_HOST with the address of your Rserve server (custom port not supported yet)
 * run tests
   . phpunit tests\ParserNativeTest.php
+  . phpunit tests\SessionTest.php
+  . phpunit tests\REXPTest.php
 
 Usage
 ---------

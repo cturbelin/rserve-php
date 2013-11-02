@@ -45,7 +45,8 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 	}
 
 	/**
-	 * return array list of names
+	 * return list of names
+	 * @return array
 	 */
 	public function getNames() {
 		return ($this->is_named) ? $this->names : array();
@@ -53,6 +54,7 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 
 	/**
 	 * return TRUE if the list is named
+	 * @return bool
 	 */
 	public function isNamed() {
 		return $this->is_named;
@@ -61,6 +63,7 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 	/**
 	 * Get the value for a given name entry, if list is not named, get the indexed element
 	 * @param string $name
+	 * @return Rserve_REXP|mixed
 	 */
 	public function at($name) {
 		if( $this->is_named ) {

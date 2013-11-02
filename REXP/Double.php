@@ -13,14 +13,26 @@
 */
 class Rserve_REXP_Double extends Rserve_REXP_Vector {
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Rserve_REXP::isInteger()
+	 */
 	public function isInteger() { 
 		return false; 
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Rserve_REXP::isNumeric()
+	 */
 	public function isNumeric() { 
 		return true; 
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Rserve_REXP_Vector::getType()
+	 */
 	public function getType() {
 		return Rserve_Parser::XT_ARRAY_DOUBLE;
 	}

@@ -37,16 +37,19 @@ class Rserve_REXP {
 	/**
 	 * Check if an attribute exists for a given name
 	 * @param Rserve_REXP $name
+	 * @return bool
 	 */
 	public function hasAttribute($name) {
 		if( !$this->attr ) {
 			return FALSE;
 		}
+		return TRUE;
 	}
 	
 	/**
 	 * Get an attribute
 	 * @param Rserve_REXP $name
+	 * @return Rserve_REXP
 	 */
 	public function getAttribute($name) {
 		if( !$this->attr ) {
@@ -65,6 +68,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a vector (list of indexed values whatever it's type)
+	 * @return bool
 	 */
 	public function isVector() { 
 		return FALSE; 
@@ -72,6 +76,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is an Integer vector 
+	 * @return bool
 	 */
 	public function isInteger() { 
 			return FALSE; 
@@ -79,6 +84,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a numeric vector (Double)
+	 * @return bool
 	 */
 	public function isNumeric() { 
 		return FALSE; 
@@ -86,6 +92,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a logical vector
+	 * @return bool
 	 */
 	public function isLogical() {
 		 return FALSE; 
@@ -93,6 +100,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a string vector
+	 * @return bool
 	 */
 	public function isString() { 
 		return FALSE; 
@@ -100,6 +108,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a symbol vector
+	 * @return bool
 	 */
 	public function isSymbol() { 
 		return FALSE; 
@@ -107,6 +116,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a raw vector (binary)
+	 * @return bool
 	 */
 	public function isRaw() { 
 		return FALSE; 
@@ -114,6 +124,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a list (Rserve_Rexp_List)
+	 * @return bool
 	 */
 	public function isList() { 
 		return FALSE; 
@@ -121,6 +132,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a null value
+	 * @return bool
 	 */
 	public function isNull() { 
 		return FALSE; 
@@ -128,6 +140,7 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a language expression
+	 * @return bool
 	 */
 	public function isLanguage() { 
 		return FALSE; 
@@ -135,19 +148,32 @@ class Rserve_REXP {
 	
 	/**
 	 * Is a factor vector
+	 * @return bool
 	 */
 	public function isFactor() { 
 		return FALSE; 
 	}
 	
+	/**
+	 * Is an expression
+	 * @return bool
+	 */
 	public function isExpression() { 
 		return FALSE; 
 	}
 	
-    public function length() {
+	/**
+	 * object content's length
+	 * @return int
+	 */
+	public function length() {
         return 0;
     }
     
+	/**
+	 * Return R class 
+	 * @return string
+	 */
 	public function getClass() {
 		$class = $this->getAttribute('class');
 		if($class) {
@@ -190,6 +216,10 @@ class Rserve_REXP {
 		}
 	}
 	
+	/**
+	 * Get R Type (@see Rserve_Parser)
+	 * @return int
+	 */
 	public function getType() {
 		return Rserve_Parser::XT_VECTOR;
 	}
