@@ -29,6 +29,10 @@ You can run tests using phpunit
   . phpunit tests\ParserNativeTest.php
   . phpunit tests\SessionTest.php
   . phpunit tests\REXPTest.php
+* define the constants RSERVE_PORT, RSERVE_USER, RSERVE_PASS to config.php (along with RSERVE_HOST)
+* run test
+  . phpunit tests\LoginTest.php
+
 
 Usage
 ---------
@@ -51,6 +55,13 @@ The use of the library is simple
  
 This will produce a php array containing R results (using native array parser). 
 Others parsers could be used by using $parser parameters (@see Rserve_Connection)
+
+
+Using Login Authorization
+-------------------------
+Usage is the same as the vanilla usage, except for the constructor
+   $cnx = new Rserve_Connection('myserverhost',serverport,array('username'=>username,'password'=>password))
+
 
 Async Mode
 -----------

@@ -1,12 +1,7 @@
 <?php
 
 /*
- * Sample config.php
- *
- * define('RSERVE_HOST','123.456.789.123');
- * define('RSERVE_PORT',1234);
- * define('RSERVE_USER','user');
- * define('RSERVE_PASS','pass');
+ * Refer to README for how to run this test
  */
 	
 require_once 'config.php';
@@ -30,7 +25,7 @@ class LoginTest extends PHPUnit_Framework_TestCase {
 		$r = $cnx->evalString('x="'.$random_id.'"');
 		
 		$this->assertEquals($r, $random_id);
-		
+
 		$session = $cnx->detachSession();
 	}
 }
