@@ -141,6 +141,8 @@ class Rserve_Connection {
 		}
 		$this->debug = isset($params['debug']) ? (bool)$params['debug'] : FALSE;
 		$this->async = isset($params['async']) ? (bool)$params['async'] : FALSE;
+		$this->username = isset($params['username']) ? $params['username'] : FALSE;
+		$this->password = isset($params['password']) ? $params['password'] : FALSE;
 		$this->openSocket($session);
 	}
 
@@ -187,11 +189,13 @@ class Rserve_Connection {
 		if( strcmp($rv, '0103') != 0 ) {
 			throw new Rserve_Exception('Unsupported protocol version.');
 		}
+		$key=null;
 		for($i = 12; $i < 32; $i += 4) {
-			$attr = substr($buf, $i, $i + 4);
+			$attr = substr($buf, $i, 4);
 			if($attr == 'ARpt') {
 				$this->auth_request = TRUE;
 				$this->auth_method = 'plain';
+				
 			} elseif($attr == 'ARuc') {
 				$this->auth_request = TRUE;
 				$this->auth_method = 'crypt';
@@ -200,6 +204,7 @@ class Rserve_Connection {
 				$key = substr($attr, 1, 3);
 			}
 		}
+		if($this->auth_method=="plain") $this->login(); else $this->login($key);
 	}
 	
 	/**
@@ -252,6 +257,34 @@ class Rserve_Connection {
 				throw new Rserve_Exception('Unknown parser');
 		}
 		return $r;
+	}
+
+
+	/**
+	 * Login to rserve
+         * Similar to RSlogin  http://rforge.net/doc/packages/RSclient/Rclient.html
+         * Inspired from https://github.com/SurajGupta/RserveCLI2/blob/master/RServeCLI2/Qap1.cs
+         *               https://github.com/SurajGupta/RserveCLI2/blob/master/RServeCLI2/RConnection.cs
+	 * @param string $salt
+	 */
+	public function login($salt=null) {
+		switch ( $this->auth_method )
+		{
+		case "plain":
+			break;
+		case "crypt":
+			if(!$salt) throw new Rserve_Exception("Should pass the salt for login");
+			$this->password=crypt($this->password,$salt);
+			break;
+		default:
+			throw new Rserve_Exception( "Could not interpret login method '{$this->auth_method}'" );
+		}
+		$data = _rserve_make_data(self::DT_STRING, "{$this->username}\n{$this->password}");
+		$r=$this->sendCommand(self::CMD_login, $data );
+		if( !$r['is_error'] ) {
+			return true;
+		}
+		throw new Rserve_Exception( "Could not login" );
 	}
 
 	/**
