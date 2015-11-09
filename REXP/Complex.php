@@ -7,8 +7,8 @@
  *
  */
 class Rserve_REXP_Complex extends Rserve_REXP_Vector {
-	
-	
+
+
 	protected function getCplx($index, $part) {
 		if( !is_null($index) ) {
 			$v = $this->at($index);
@@ -23,7 +23,7 @@ class Rserve_REXP_Complex extends Rserve_REXP_Vector {
 		}
 		return $r;
 	}
-	
+
 	/**
 	* Get imaginary part of vector
 	* @param int index of vector
@@ -32,7 +32,7 @@ class Rserve_REXP_Complex extends Rserve_REXP_Vector {
 	public function getImaginary($index = null) {
 		return $this->getCplx($index, 1);
 	}
-    
+
 	/**
 	* Get real part of vector
 	* @param int index of vector
@@ -41,7 +41,7 @@ class Rserve_REXP_Complex extends Rserve_REXP_Vector {
 	public function getReal($index = null) {
 		return $this->getCplx($index, 0);
 	}
-    
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Rserve_REXP_Vector::valueToHTML()
@@ -49,7 +49,5 @@ class Rserve_REXP_Complex extends Rserve_REXP_Vector {
 	protected function valueToHTML($v) {
 		return $v[0]+' + '.$v[1].'i';
 	}
-    
+
 }
-
-

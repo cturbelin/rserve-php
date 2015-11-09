@@ -2,7 +2,7 @@
 /**
  * Rserve message Parser
  * @author Clément Turbelin
- * From Rserve java Client & php Client 
+ * From Rserve java Client & php Client
  * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
  */
 class Rserve_Parser {
@@ -97,28 +97,28 @@ class Rserve_Parser {
 	/** used for transport only - has attribute */
 	const XT_HAS_ATTR = 128;
 
-    
+
 	/**
 	* Global parameters to parse() function
 	* If true, use Rserve_RNative wrapper instead of native array to handle attributes
 	*/
 	public static $use_array_object = FALSE;
-    
+
     /**
     * Transform factor to native strings, only for parse() method
     * If false, factors are parsed as integers
     */
     public static $factor_as_string = TRUE;
-    
+
 	/**
-	 * SEXP to php array parser 
+	 * SEXP to php array parser
 	 * parse SEXP results -- limited implementation for now (large packets and some data types are not supported)
 	 * @param string $buf
 	 * @param int $offset
-	 * @return native php array or a RNative object if if the static property $use_array_object is TRUE 
+	 * @return native php array or a RNative object if if the static property $use_array_object is TRUE
 	 */
 	public static function parse($buf, &$offset) {
-		
+
         $attr = NULL;
         $r = $buf;
 		$i = $offset;
@@ -162,22 +162,22 @@ class Rserve_Parser {
                     $a = $na;
                 }
             break;
-            
+
             case self::XT_INT:
                 $a = int32($r, $i);
                 $i += 4;
             break;
-            
+
             case self::XT_DOUBLE:
                 $a = flt64($r, $i);
                 $i += 8;
             break;
-            
+
             case self::XT_BOOL:
                 $v = int8($r, $i++);
                 $a = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
             break;
-            
+
             case self::XT_SYM:
             case self::XT_SYMNAME: // symbol
                 $oi = $i;
@@ -186,7 +186,7 @@ class Rserve_Parser {
                 }
                 $a = substr($buf, $oi, $i - $oi);
             break;
-            
+
             case self::XT_LANG_NOTAG:
             case self::XT_LIST_NOTAG : // pairlist w/o tags
                 $a = array();
@@ -194,7 +194,7 @@ class Rserve_Parser {
                     $a[] = self::parse($buf, $i);
                 }
             break;
-            
+
             case self::XT_LIST_TAG:
             case self::XT_LANG_TAG:
                 // pairlist with tags
@@ -205,7 +205,7 @@ class Rserve_Parser {
                     $a[$tag] = $val;
                 }
             break;
-            
+
             case self::XT_ARRAY_INT: // integer array
                 $a = array();
                 while ($i < $eoa) {
@@ -227,13 +227,13 @@ class Rserve_Parser {
                             if($i < 0) {
                                 $a[$k] = NULL;
                             } else {
-                                $a[$k] = $levels[ $i -1];       
+                                $a[$k] = $levels[ $i -1];
                             }
                         }
                     }
                 }
             break;
-            
+
             case self::XT_ARRAY_DOUBLE:// double array
                 $a = array();
                 while ($i < $eoa) {
@@ -244,7 +244,7 @@ class Rserve_Parser {
                     $a = $a[0];
                 }
             break;
-            
+
             case self::XT_ARRAY_STR: // string array
                 $a = array();
                 $oi = $i;
@@ -259,7 +259,7 @@ class Rserve_Parser {
                     $a = $a[0];
                 }
             break;
-            
+
             case self::XT_ARRAY_BOOL:  // boolean vector
                 $n = int32($r, $i);
                 $i += 4;
@@ -273,13 +273,13 @@ class Rserve_Parser {
                     $a =  $a[0];
                 }
             break;
-            
+
             case self::XT_RAW: // raw vector
                 $len = int32($r, $i);
                 $i += 4;
                 $a =  substr($r, $i, $len);
             break;
-            
+
             case self::XT_ARRAY_CPLX:
                 // real part
                 $real = array();
@@ -295,18 +295,18 @@ class Rserve_Parser {
                     $a = array($real, $im);
                 }
             break;
-        
+
             case 48: // unimplemented type in Rserve
                 $uit = int32($r, $i);
                 // echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
                 $a = NULL;
             break;
-            
+
             default:
                 echo 'Warning: type '.$ra.' is currently not implemented in the PHP client.';
                 $a = NULL;
         } // end switch
-        
+
         if( self::$use_array_object ) {
             if( is_array($a) & $attr) {
                 return new Rserve_RNative($a, $attr, $ra);
@@ -317,7 +317,7 @@ class Rserve_Parser {
         return $a;
 	}
 
-	
+
 	/**
 	 * parse SEXP to Debug array(type, length,offset, contents, n)
 	 * @param string $buf
@@ -334,9 +334,9 @@ class Rserve_Parser {
 		$i += 4;
 
 		$offset = $eoa = $i + $rl;
-		
+
 		$result = array();
-		
+
 		$result['type'] = self::xtName($ra & 63);
 		$result['length'] =  $rl;
 		$result['offset'] = $i;
@@ -361,7 +361,7 @@ class Rserve_Parser {
 			while ($i < $eoa) {
 				$a[] = self::parseDebug($buf, $i);
 			}
-			$result['contents'] = $a;			
+			$result['contents'] = $a;
 		}
 		if ($ra == self::XT_SYMNAME) { // symbol
 			$oi = $i;
@@ -465,7 +465,7 @@ class Rserve_Parser {
 		}
 		return $result;
 	}
-	
+
 	/**
 	* SEXP to REXP objects parser
 	*/
@@ -491,30 +491,30 @@ class Rserve_Parser {
 			$attr = self::parseREXP($buf, $tmp);
 			$i += $al + 4;
 		}
-		
+
 		$class = ($attr) ? $attr->at('class') : null;
 		if( $class ) {
 			$class = $class->getValues();
 		}
-		
+
 		switch($ra) {
 			case self::XT_NULL:
 				$a =  new Rserve_REXP_Null();
 				break;
-				
+
 			case self::XT_VECTOR: // generic vector
 				$v = array();
 				while ($i < $eoa) {
 					$v[] = self::parseREXP($buf, $i);
 				}
-				
+
 				$klass = 'Rserve_REXP_GenericVector';
 				if( $class ) {
 					if( in_array('data.frame', $class) ) {
-						$klass = 'Rserve_REXP_Dataframe'; 
+						$klass = 'Rserve_REXP_Dataframe';
 					}
 				}
-				$a = new $klass(); 
+				$a = new $klass();
 				$a->setValues($v);
 				break;
 
@@ -527,7 +527,7 @@ class Rserve_Parser {
 				$a = new Rserve_REXP_Symbol();
 				$a->setValue($v);
 				break;
-				
+
 			case self::XT_LIST_NOTAG:
 			case self::XT_LANG_NOTAG: // pairlist w/o tags
 				$v = array();
@@ -538,7 +538,7 @@ class Rserve_Parser {
 				$a = new $clasz();
 				$a->setValues($a);
 				break;
-			
+
 			case self::XT_LIST_TAG:
 			case self::XT_LANG_TAG: // pairlist with tags
 				$clasz = ($ra == self::XT_LIST_TAG) ? 'Rserve_REXP_List' : 'Rserve_REXP_Language';
@@ -622,12 +622,12 @@ class Rserve_Parser {
 					$i += 8;
 					$im = flt64($r, $i);
 					$i += 8;
-					$v[] = array($real, $im);	
+					$v[] = array($real, $im);
 				}
 				$a = new Rserve_REXP_Complex();
 				$a->setValues($v);
 				break;
-			/*		
+			/*
 		    case 48: // unimplemented type in Rserve
 				$uit = int32($r, $i);
 				// echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
@@ -750,7 +750,7 @@ class Rserve_Parser {
 				$o += 4;
 				$contents .= $v;
 				break;
-					
+
 			case self::XT_ARRAY_STR:
 				$vv = $value->getValues();
 				$n = count($vv);
@@ -781,7 +781,7 @@ class Rserve_Parser {
 				if($type == XT_LIST_TAG || $type == XT_LANG_TAG) {
 					$names = $value->getNames();
 				}
-				$i = 0; 
+				$i = 0;
 				$n = count($l);
 				while($i < $n) {
 					$x = $l[$i];
@@ -819,7 +819,7 @@ class Rserve_Parser {
 		$attr_bin = '';
 		if( is_null($attr) ) {
 			$attr_off = self::createBinary($attr, $attr_bin, 0);
-			$attr_flag = self::XT_HAS_ATTR; 
+			$attr_flag = self::XT_HAS_ATTR;
 		} else {
 			$attr_off = 0;
 			$attr_flag = 0;
@@ -828,12 +828,12 @@ class Rserve_Parser {
 		  // [4]   (4) header attribute SEXP: len=n
   		  // [8]   (n) data attribute SEXP
   		  // [8+n] (m) data SEXP
-		*/		
+		*/
 		$attr_flag = 0;
 		$length = $o;
 		$isLarge = ($length > 0xfffff0);
 		$code = $type | $attr_flag;
-		
+
 		// SEXP Header (without ATTR)
 		// [0]  (byte) eXpression Type
 		// [1]  (24-bit int) length
@@ -843,4 +843,3 @@ class Rserve_Parser {
 		return $r;
 	}
 }
-
