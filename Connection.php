@@ -190,6 +190,7 @@ class Rserve_Connection {
 			throw new Rserve_Exception('Unsupported protocol version.');
 		}
 		$key=null;
+		$this->auth_request = FALSE;
 		for($i = 12; $i < 32; $i += 4) {
 			$attr = substr($buf, $i, 4);
 			if($attr == 'ARpt') {
@@ -204,7 +205,9 @@ class Rserve_Connection {
 				$key = substr($attr, 1, 3);
 			}
 		}
-		if($this->auth_method=="plain") $this->login(); else $this->login($key);
+		if($this->auth_request === TRUE) {
+			if($this->auth_method=="plain") $this->login(); else $this->login($key);
+		}
 	}
 	
 	/**
