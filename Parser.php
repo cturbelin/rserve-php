@@ -1,8 +1,8 @@
 <?php
 /**
  * Rserve message Parser
- * @author Clément Turbelin
- * From Rserve java Client & php Client 
+ * @author ClÃ©ment Turbelin
+ * From Rserve java Client & php Client
  * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
  */
 class Rserve_Parser {
@@ -97,30 +97,29 @@ class Rserve_Parser {
 	/** used for transport only - has attribute */
 	const XT_HAS_ATTR = 128;
 
-    
+
 	/**
 	* Global parameters to parse() function
 	* If true, use Rserve_RNative wrapper instead of native array to handle attributes
 	*/
 	public static $use_array_object = FALSE;
-    
-    /**
-    * Transform factor to native strings, only for parse() method
-    * If false, factors are parsed as integers
-    */
-    public static $factor_as_string = TRUE;
-    
+
 	/**
-	 * SEXP to php array parser 
+	 * Transform factor to native strings, only for parse() method
+	 * If false, factors are parsed as integers
+	 */
+	public static $factor_as_string = TRUE;
+
+	/**
+	 * SEXP to php array parser
 	 * parse SEXP results -- limited implementation for now (large packets and some data types are not supported)
 	 * @param string $buf
 	 * @param int $offset
-	 * @return native php array or a RNative object if if the static property $use_array_object is TRUE 
+	 * @return native php array or a RNative object if if the static property $use_array_object is TRUE
 	 */
 	public static function parse($buf, &$offset) {
-		
-        $attr = NULL;
-        $r = $buf;
+		$attr = NULL;
+		$r = $buf;
 		$i = $offset;
 
 		// some simple parsing - just skip attributes and assume short responses
@@ -137,187 +136,186 @@ class Rserve_Parser {
 			//echo '(ATTR*[';
 			$ra &= ~self::XT_HAS_ATTR;
 			$al = int24($r, $i + 1);
-            $tmp = $i; // use temporary to protect current offset
+			$tmp = $i; // use temporary to protect current offset
 			$attr = self::parse($buf, $tmp);
 			//echo '])';
 			$i += $al + 4;
 		}
-        switch($ra) {
-            case self::XT_NULL:
-                $a = NULL;
-                break;
-            case self::XT_VECTOR: // generic vector
-                $a = array();
-                while ($i < $eoa) {
-                    $a[] = self::parse($buf, $i);
-                }
-                // if the 'names' attribute is set, convert the plain array into a map
-                if ( isset($attr['names']) ) {
-                    $names = $attr['names'];
-                    $na = array();
-                    $n = count($a);
-                    for ($k = 0; $k < $n; $k++) {
-                        $na[$names[$k]] = $a[$k];
-                    }
-                    $a = $na;
-                }
-            break;
-            
-            case self::XT_INT:
-                $a = int32($r, $i);
-                $i += 4;
-            break;
-            
-            case self::XT_DOUBLE:
-                $a = flt64($r, $i);
-                $i += 8;
-            break;
-            
-            case self::XT_BOOL:
-                $v = int8($r, $i++);
-                $a = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
-            break;
-            
-            case self::XT_SYM:
-            case self::XT_SYMNAME: // symbol
-                $oi = $i;
-                while ($i < $eoa && ord($r[$i]) != 0) {
-                    $i++;
-                }
-                $a = substr($buf, $oi, $i - $oi);
-            break;
-            
-            case self::XT_LANG_NOTAG:
-            case self::XT_LIST_NOTAG : // pairlist w/o tags
-                $a = array();
-                while ($i < $eoa) {
-                    $a[] = self::parse($buf, $i);
-                }
-            break;
-            
-            case self::XT_LIST_TAG:
-            case self::XT_LANG_TAG:
-                // pairlist with tags
-                $a = array();
-                while ($i < $eoa) {
-                    $val = self::parse($buf, $i);
-                    $tag = self::parse($buf, $i);
-                    $a[$tag] = $val;
-                }
-            break;
-            
-            case self::XT_ARRAY_INT: // integer array
-                $a = array();
-                while ($i < $eoa) {
-                    $a[] = int32($r, $i);
-                    $i += 4;
-                }
-                if (count($a) == 1) {
-                    $a = $a[0];
-                }
-                // If factor, then transform to characters
-                if( self::$factor_as_string  and isset($attr['class']) ) {
-                    $c = $attr['class'];
-                    $is_factor = is_string($c) && ($c == 'factor');
-                    if($is_factor) {
-                        $n = count($a);
-                        $levels = $attr['levels'];
-                        for($k = 0; $k < $n; ++$k) {
-                            $i = $a[$k];
-                            if($i < 0) {
-                                $a[$k] = NULL;
-                            } else {
-                                $a[$k] = $levels[ $i -1];       
-                            }
-                        }
-                    }
-                }
-            break;
-            
-            case self::XT_ARRAY_DOUBLE:// double array
-                $a = array();
-                while ($i < $eoa) {
-                    $a[] = flt64($r, $i);
-                    $i += 8;
-                }
-                if (count($a) == 1) {
-                    $a = $a[0];
-                }
-            break;
-            
-            case self::XT_ARRAY_STR: // string array
-                $a = array();
-                $oi = $i;
-                while ($i < $eoa) {
-                    if (ord($r[$i]) == 0) {
-                        $a[] = substr($r, $oi, $i - $oi);
-                        $oi = $i + 1;
-                    }
-                    $i++;
-                }
-                if (count($a) == 1) {
-                    $a = $a[0];
-                }
-            break;
-            
-            case self::XT_ARRAY_BOOL:  // boolean vector
-                $n = int32($r, $i);
-                $i += 4;
-                $k = 0;
-                $a = array();
-                while ($k < $n) {
-                    $v = int8($r, $i++);
-                    $a[$k++] = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
-                }
-                if ($n == 1) {
-                    $a =  $a[0];
-                }
-            break;
-            
-            case self::XT_RAW: // raw vector
-                $len = int32($r, $i);
-                $i += 4;
-                $a =  substr($r, $i, $len);
-            break;
-            
-            case self::XT_ARRAY_CPLX:
-                // real part
-                $real = array();
-                while ($i < $eoa) {
-                    $real[] = flt64($r, $i);
-                    $i += 8;
-                    $im[] = flt64($r, $i);
-                    $i += 8;
-                }
-                if (count($real) == 1) {
-                    $a = array($real[0], $im[0]);
-                } else {
-                    $a = array($real, $im);
-                }
-            break;
-        
-            case 48: // unimplemented type in Rserve
-                $uit = int32($r, $i);
-                // echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
-                $a = NULL;
-            break;
-            
-            default:
-                echo 'Warning: type '.$ra.' is currently not implemented in the PHP client.';
-                $a = NULL;
-        } // end switch
-        
-        if( self::$use_array_object ) {
-            if( is_array($a) & $attr) {
-                return new Rserve_RNative($a, $attr, $ra);
-            } else {
-                return $a;
-            }
-        }
-        return $a;
+		switch($ra) {
+			case self::XT_NULL:
+				$a = NULL;
+				break;
+			case self::XT_VECTOR: // generic vector
+				$a = array();
+				while ($i < $eoa) {
+					$a[] = self::parse($buf, $i);
+				}
+				// if the 'names' attribute is set, convert the plain array into a map
+				if ( isset($attr['names']) ) {
+					$names = $attr['names'];
+					$na = array();
+					$n = count($a);
+					for ($k = 0; $k < $n; $k++) {
+						$na[$names[$k]] = $a[$k];
+					}
+					$a = $na;
+				}
+				break;
+
+			case self::XT_INT:
+				$a = int32($r, $i);
+				$i += 4;
+				break;
+
+			case self::XT_DOUBLE:
+				$a = flt64($r, $i);
+				$i += 8;
+        break;
+
+			case self::XT_BOOL:
+				$v = int8($r, $i++);
+				$a = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
+				break;
+
+			case self::XT_SYM:
+			case self::XT_SYMNAME: // symbol
+				$oi = $i;
+				while ($i < $eoa && ord($r[$i]) != 0) {
+					$i++;
+				}
+				$a = substr($buf, $oi, $i - $oi);
+				break;
+
+			case self::XT_LANG_NOTAG:
+			case self::XT_LIST_NOTAG : // pairlist w/o tags
+				$a = array();
+				while ($i < $eoa) {
+					$a[] = self::parse($buf, $i);
+				}
+				break;
+
+			case self::XT_LIST_TAG:
+			case self::XT_LANG_TAG:
+				// pairlist with tags
+				$a = array();
+				while ($i < $eoa) {
+					$val = self::parse($buf, $i);
+					$tag = self::parse($buf, $i);
+					$a[$tag] = $val;
+				}
+				break;
+
+			case self::XT_ARRAY_INT: // integer array
+				$a = array();
+				while ($i < $eoa) {
+					$a[] = int32($r, $i);
+					$i += 4;
+				}
+				if (count($a) == 1) {
+					$a = $a[0];
+				}
+				// If factor, then transform to characters
+				if( self::$factor_as_string  and isset($attr['class']) ) {
+					$c = $attr['class'];
+					$is_factor = is_string($c) && ($c == 'factor');
+					if($is_factor) {
+						$n = count($a);
+						$levels = $attr['levels'];
+						for($k = 0; $k < $n; ++$k) {
+							$i = $a[$k];
+							if($i < 0) {
+								$a[$k] = NULL;
+							} else {
+								$a[$k] = $levels[ $i -1];
+							}
+						}
+					}
+				}
+				break;
+
+			case self::XT_ARRAY_DOUBLE:// double array
+				$a = array();
+				while ($i < $eoa) {
+					$a[] = flt64($r, $i);
+					$i += 8;
+				}
+				if (count($a) == 1) {
+					$a = $a[0];
+				}
+				break;
+
+			case self::XT_ARRAY_STR: // string array
+				$a = array();
+				$oi = $i;
+				while ($i < $eoa) {
+					if (ord($r[$i]) == 0) {
+						$a[] = substr($r, $oi, $i - $oi);
+						$oi = $i + 1;
+					}
+					$i++;
+				}
+				if (count($a) == 1) {
+					$a = $a[0];
+				}
+				break;
+
+			case self::XT_ARRAY_BOOL:  // boolean vector
+				$n = int32($r, $i);
+				$i += 4;
+				$k = 0;
+				$a = array();
+				while ($k < $n) {
+					$v = int8($r, $i++);
+					$a[$k++] = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
+				}
+				if ($n == 1) {
+					$a =  $a[0];
+				}
+				break;
+
+			case self::XT_RAW: // raw vector
+				$len = int32($r, $i);
+				$i += 4;
+				$a =  substr($r, $i, $len);
+				break;
+
+			case self::XT_ARRAY_CPLX:
+				// real part
+				$real = array();
+				while ($i < $eoa) {
+					$real[] = flt64($r, $i);
+					$i += 8;
+					$im[] = flt64($r, $i);
+					$i += 8;
+				}
+				if (count($real) == 1) {
+					$a = array($real[0], $im[0]);
+				} else {
+					$a = array($real, $im);
+				}
+				break;
+
+			case 48: // unimplemented type in Rserve
+				$uit = int32($r, $i);
+				// echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
+				$a = NULL;
+				break;
+
+			default:
+				echo 'Warning: type '.$ra.' is currently not implemented in the PHP client.';
+				$a = NULL;
+		} // end switch
+
+		if( self::$use_array_object ) {
+			if( is_array($a) & $attr) {
+				return new Rserve_RNative($a, $attr, $ra);
+			} else {
+				return $a;
+			}
+		}
+		return $a;
 	}
 
-	
 	/**
 	 * parse SEXP to Debug array(type, length,offset, contents, n)
 	 * @param string $buf
@@ -329,14 +327,14 @@ class Rserve_Parser {
 
 		// some simple parsing - just skip attributes and assume short responses
 		$attr =  NULL;
-        $ra = int8($r, $i);
+		$ra = int8($r, $i);
 		$rl = int24($r, $i + 1);
 		$i += 4;
 
 		$offset = $eoa = $i + $rl;
-		
+
 		$result = array();
-		
+
 		$result['type'] = self::xtName($ra & 63);
 		$result['length'] =  $rl;
 		$result['offset'] = $i;
@@ -348,7 +346,7 @@ class Rserve_Parser {
 		if ($ra > self::XT_HAS_ATTR) {
 			$ra &= ~self::XT_HAS_ATTR;
 			$al = int24($r, $i + 1);
-            $tmp = $i; // use temporary to protect current offset
+			$tmp = $i; // use temporary to protect current offset
 			$attr = self::parseDebug($buf, $tmp);
 			$result['attr'] = $attr;
 			$i += $al + 4; // add attribute length
@@ -361,7 +359,7 @@ class Rserve_Parser {
 			while ($i < $eoa) {
 				$a[] = self::parseDebug($buf, $i);
 			}
-			$result['contents'] = $a;			
+			$result['contents'] = $a;
 		}
 		if ($ra == self::XT_SYMNAME) { // symbol
 			$oi = $i;
@@ -452,11 +450,11 @@ class Rserve_Parser {
 				$im[] = flt64($r, $i);
 				$i += 8;
 			}
-            if (count($real) == 1) {
+			if (count($real) == 1) {
 				$a = array($real[0], $im[0]);
 			} else {
-                $a = array($real, $im);
-            }
+				$a = array($real, $im);
+			}
 			$result['contents'] = $a;
 		}
 		if ($ra == 48) { // unimplemented type in Rserve
@@ -465,13 +463,13 @@ class Rserve_Parser {
 		}
 		return $result;
 	}
-	
+
 	/**
 	* SEXP to REXP objects parser
 	*/
 	public static function parseREXP($buf, &$offset) {
 		$attr = NULL;
-        $r = $buf;
+		$r = $buf;
 		$i = $offset;
 
 		// some simple parsing - just skip attributes and assume short responses
@@ -487,34 +485,34 @@ class Rserve_Parser {
 		if ($ra > self::XT_HAS_ATTR) {
 			$ra &= ~self::XT_HAS_ATTR;
 			$al = int24($r, $i + 1);
-            $tmp = $i;
+			$tmp = $i;
 			$attr = self::parseREXP($buf, $tmp);
 			$i += $al + 4;
 		}
-		
+
 		$class = ($attr) ? $attr->at('class') : null;
 		if( $class ) {
 			$class = $class->getValues();
 		}
-		
+
 		switch($ra) {
 			case self::XT_NULL:
 				$a =  new Rserve_REXP_Null();
 				break;
-				
+
 			case self::XT_VECTOR: // generic vector
 				$v = array();
 				while ($i < $eoa) {
 					$v[] = self::parseREXP($buf, $i);
 				}
-				
+
 				$klass = 'Rserve_REXP_GenericVector';
 				if( $class ) {
 					if( in_array('data.frame', $class) ) {
-						$klass = 'Rserve_REXP_Dataframe'; 
+						$klass = 'Rserve_REXP_Dataframe';
 					}
 				}
-				$a = new $klass(); 
+				$a = new $klass();
 				$a->setValues($v);
 				break;
 
@@ -527,7 +525,7 @@ class Rserve_Parser {
 				$a = new Rserve_REXP_Symbol();
 				$a->setValue($v);
 				break;
-				
+
 			case self::XT_LIST_NOTAG:
 			case self::XT_LANG_NOTAG: // pairlist w/o tags
 				$v = array();
@@ -538,7 +536,7 @@ class Rserve_Parser {
 				$a = new $clasz();
 				$a->setValues($a);
 				break;
-			
+
 			case self::XT_LIST_TAG:
 			case self::XT_LANG_TAG: // pairlist with tags
 				$clasz = ($ra == self::XT_LIST_TAG) ? 'Rserve_REXP_List' : 'Rserve_REXP_Language';
@@ -622,21 +620,21 @@ class Rserve_Parser {
 					$i += 8;
 					$im = flt64($r, $i);
 					$i += 8;
-					$v[] = array($real, $im);	
+					$v[] = array($real, $im);
 				}
 				$a = new Rserve_REXP_Complex();
 				$a->setValues($v);
 				break;
-			/*		
-		    case 48: // unimplemented type in Rserve
+			/*
+				case 48: // unimplemented type in Rserve
 				$uit = int32($r, $i);
 				// echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
 				$a = NULL;
 				break;
-            */
+			*/
 			default:
 				// handle unknown type
-                $a = new Rserve_REXP_Unknown($ra);
+				$a = new Rserve_REXP_Unknown($ra);
 		}
 		if( $attr && is_object($a) ) {
 			$a->setAttributes($attr);
@@ -679,7 +677,7 @@ class Rserve_Parser {
 	/**
 	 *
 	 * @param Rserve_REXP $value
-     * This function is not functionnal. Please use it only for testing
+	 * This function is not functionnal. Please use it only for testing
 	 */
 	public static function createBinary(Rserve_REXP $value) {
 		// Current offset
@@ -750,7 +748,7 @@ class Rserve_Parser {
 				$o += 4;
 				$contents .= $v;
 				break;
-					
+
 			case self::XT_ARRAY_STR:
 				$vv = $value->getValues();
 				$n = count($vv);
@@ -781,7 +779,7 @@ class Rserve_Parser {
 				if($type == XT_LIST_TAG || $type == XT_LANG_TAG) {
 					$names = $value->getNames();
 				}
-				$i = 0; 
+				$i = 0;
 				$n = count($l);
 				while($i < $n) {
 					$x = $l[$i];
@@ -819,21 +817,21 @@ class Rserve_Parser {
 		$attr_bin = '';
 		if( is_null($attr) ) {
 			$attr_off = self::createBinary($attr, $attr_bin, 0);
-			$attr_flag = self::XT_HAS_ATTR; 
+			$attr_flag = self::XT_HAS_ATTR;
 		} else {
 			$attr_off = 0;
 			$attr_flag = 0;
 		}
 		  // [0]   (4) header SEXP: len=4+m+n, XT_HAS_ATTR is set
 		  // [4]   (4) header attribute SEXP: len=n
-  		  // [8]   (n) data attribute SEXP
-  		  // [8+n] (m) data SEXP
-		*/		
+		  // [8]   (n) data attribute SEXP
+		  // [8+n] (m) data SEXP
+		*/
 		$attr_flag = 0;
 		$length = $o;
 		$isLarge = ($length > 0xfffff0);
 		$code = $type | $attr_flag;
-		
+
 		// SEXP Header (without ATTR)
 		// [0]  (byte) eXpression Type
 		// [1]  (24-bit int) length
@@ -842,5 +840,5 @@ class Rserve_Parser {
 		$r .= $contents;
 		return $r;
 	}
-}
 
+}
