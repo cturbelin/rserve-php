@@ -3,7 +3,7 @@
 /**
  * Complex values
  * Each complex number is stored in an array(real part, imaginary part)
- * @author Clément Turbelin
+ * @author ClÃ©ment Turbelin
  *
  */
 class Rserve_REXP_Complex extends Rserve_REXP_Vector {

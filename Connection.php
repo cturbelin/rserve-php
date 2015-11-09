@@ -3,7 +3,7 @@
  * Rserve client for PHP
  * Supports Rserve protocol 0103 only (used by Rserve 0.5 and higher)
  * $Revision$
- * @author Clément TURBELIN
+ * @author ClÃ©ment TURBELIN
  * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
  * $Id$
  */
@@ -12,7 +12,7 @@ require_once 'Parser.php';
 
 /**
  * Handle Connection and communicating with Rserve instance (QAP1 protocol)
- * @author Clément Turbelin
+ * @author ClÃ©ment Turbelin
  *
  */
 class Rserve_Connection {
@@ -548,7 +548,7 @@ class Rserve_Connection {
 
 /**
  * R Session wrapper
- * @author Clément Turbelin
+ * @author ClÃ©ment Turbelin
  *
  */
 class Rserve_Session {
@@ -582,7 +582,7 @@ class Rserve_Session {
 
 /**
  * RServe Exception
- * @author Clément Turbelin
+ * @author ClÃ©ment Turbelin
  *
  */
 class Rserve_Exception extends Exception {

@@ -1,7 +1,7 @@
 <?php
 /**
  * Rserve native array wrapper
- * @author Clément Turbelin
+ * @author ClÃ©ment Turbelin
  * From Rserve java Client & php Client
  */
  
