@@ -3,7 +3,7 @@
  * Rserve client for PHP
  * Supports Rserve protocol 0103 only (used by Rserve 0.5 and higher)
  * $Revision$
- * @author Clément TURBELIN
+ * @author Clï¿½ment TURBELIN
  * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
  * $Id$
  */
@@ -12,7 +12,7 @@ require_once 'Parser.php';
 
 /**
  * Handle Connection and communicating with Rserve instance (QAP1 protocol)
- * @author Clément Turbelin
+ * @author Clï¿½ment Turbelin
  *
  */
 class Rserve_Connection {
@@ -59,7 +59,7 @@ class Rserve_Connection {
 	const CMD_ctrlShutdown	= 0x44;
 
 	const CMD_Response = 0x10000;
-	
+
 	// errors as returned by Rserve
 	const ERR_auth_failed	= 0x41;
 	const ERR_conn_broken	= 0x42;
@@ -87,9 +87,9 @@ class Rserve_Connection {
 	private $socket;
 	private $auth_request;
 	private $auth_method;
-	
+
 	private $debug;
-	
+
 	private $ascync;
 
 	/**
@@ -120,7 +120,7 @@ class Rserve_Connection {
 	/**
 	 *  @param mixed host name or IP or a Rserve_Session instance
 	 *  @param int $port if 0 then host is interpreted as unix socket,
-	 *  
+	 *
 	 */
 	public function __construct($host='127.0.0.1', $port = 6311, $params=array()) {
 		if( !self::$init ) {
@@ -177,8 +177,8 @@ class Rserve_Connection {
 				throw new Rserve_Exception('invalid session key : '.$msg);
 			}
 			return;
-		} 
-		
+		}
+
 		// No session, check handshake
 		$buf = '';
 		$n = socket_recv($socket, $buf, 32, 0);
@@ -196,7 +196,7 @@ class Rserve_Connection {
 			if($attr == 'ARpt') {
 				$this->auth_request = TRUE;
 				$this->auth_method = 'plain';
-				
+
 			} elseif($attr == 'ARuc') {
 				$this->auth_request = TRUE;
 				$this->auth_method = 'crypt';
@@ -209,15 +209,15 @@ class Rserve_Connection {
 			if($this->auth_method=="plain") $this->login(); else $this->login($key);
 		}
 	}
-	
+
 	/**
 	 * Allow accces to socket
 	 */
 	public function getSocket() {
 		return $this->socket;
-	}	
-	
-	
+	}
+
+
 	/**
 	 * Set Asynchronous mode
 	 * @param bool $async
@@ -225,13 +225,13 @@ class Rserve_Connection {
 	public function setAsync($async) {
 		$this->async = (bool)$async;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * Parse a response from Rserve
 	 * @param string $r
 	 * @param int $parser
-	 * @return parsed results 
+	 * @return parsed results
 	 */
 	private function parseResponse($buf, $parser) {
 		$type = int8($buf, 0);
@@ -296,9 +296,9 @@ class Rserve_Connection {
 	 * @param int $parser
 	 */
 	public function evalString($string, $parser = self::PARSER_NATIVE) {
-		
+
 		$data = _rserve_make_data(self::DT_STRING, $string);
-		
+
 		$r = $this->sendCommand(self::CMD_eval, $data );
 		if($this->async) {
 			return TRUE;
@@ -309,7 +309,7 @@ class Rserve_Connection {
 		throw new Rserve_Exception('unable to evaluate', $r);
 	}
 
-	
+
 	/**
 	 * Detach the current session from the current connection.
 	 * Save envirnoment could be attached to another R connection later
@@ -323,16 +323,16 @@ class Rserve_Connection {
 			if( strlen($x) != (32+3*4) ) {
 				throw new Rserve_Exception('Invalid response to detach');
 			}
-			
+
 			$port  =  int32($x, 4);
 			$key = substr($x, 12);
 			$session = new Rserve_Session($key, $this->host, $port);
-			
+
 			return $session;
 		}
 		throw new Rserve_Exception('Unable to detach sesssion', $r);
 	}
-	
+
 	/**
 	 * Assign a value to a symbol in R
 	 * @param string $symbol name of the variable to set (should be compliant with R syntax !)
@@ -346,8 +346,8 @@ class Rserve_Connection {
 		$r = $this->sendCommand(self::CMD_assignSEXP, $data);
 		return $r;
 	}
-	
-	
+
+
 	/**
 	 * Get the response from a command
 	 * @param resource	$socket
@@ -390,7 +390,7 @@ class Rserve_Connection {
 	public function newConnection() {
 		$newConnection = clone($this);
 		$newConnection->openSocket();
-		return $newConnection;	
+		return $newConnection;
 	}
 
 
@@ -421,13 +421,13 @@ class Rserve_Connection {
 	 * @return int	if $async, TRUE
 	 */
 	protected function sendCommand($command, $data) {
-		
+
 		$pkt = _rserve_make_packet($command, $data);
-		
+
 		if($this->debug) {
 			$this->debugPacket($pkt);
 		}
-		
+
 		socket_send($this->socket, $pkt, strlen($pkt), 0);
 
 		if($this->async) {
@@ -450,10 +450,10 @@ class Rserve_Connection {
 		*/
 		if(is_array($packet))  {
 			$buf = $packet['contents'];
-			$header = $packet['header'];	
+			$header = $packet['header'];
 		} else {
 			$header = substr($packet, 0, 16);
-			$buf = substr($packet, 16); 
+			$buf = substr($packet, 16);
 		}
 		$command = int32($header, 0);
 		$lengthLow = int32($header, 4);
@@ -475,11 +475,11 @@ class Rserve_Connection {
 			$i += 4;
 			$i += $m_len;
 			$len -= $m_len + 4;
-			echo 'data:<'.$this->getDataTypeTitle($type).' length:'.$m_len.">\n"; 
+			echo 'data:<'.$this->getDataTypeTitle($type).' length:'.$m_len.">\n";
 		}
 		echo "]\n";
 	}
-	
+
 
 	/**
 	 * Data Type value to label
@@ -487,35 +487,35 @@ class Rserve_Connection {
 	 */
 	public function getDataTypeTitle($x) {
 		switch($x) {
-		case self::DT_INT : 
+		case self::DT_INT :
 			$m = 'int';
 			break;
-		case self::DT_CHAR : 			
+		case self::DT_CHAR :
 			$m = 'char';
 			break;
-		case self::DT_DOUBLE : 			
+		case self::DT_DOUBLE :
 			$m = 'double';
 			break;
-		case self::DT_STRING : 			
+		case self::DT_STRING :
 			$m = 'string';
 			break;
-		case self::DT_BYTESTREAM : 			
+		case self::DT_BYTESTREAM :
 			$m = 'stream';
 			break;
-			
-		case self::DT_SEXP : 			
+
+		case self::DT_SEXP :
 			$m = 'sexp';
 			break;
-			
-		case self::DT_ARRAY :			
+
+		case self::DT_ARRAY :
 			$m = 'array';
 			break;
 		default:
-			$m = 'unknown';			
+			$m = 'unknown';
 		}
 		return $m;
 	}
-	
+
 	/**
 	 * Translate an error code to an error message
 	 * @param int $code
@@ -541,30 +541,30 @@ class Rserve_Connection {
 			default:
 				$m = 'unknown error';
 		}
-		return $m;		
+		return $m;
 	}
-	
+
 }
 
 /**
  * R Session wrapper
- * @author Clément Turbelin
+ * @author Clï¿½ment Turbelin
  *
  */
 class Rserve_Session {
-	
+
 	/**
 	 * Session key
 	 * @var string
 	 */
 	public $key;
-	
+
 	/**
-	 * 
+	 *
 	 * @var int
 	 */
 	public $port;
-	
+
 	public $host;
 
 	public function __construct($key, $host, $port) {
@@ -572,7 +572,7 @@ class Rserve_Session {
 		$this->port = $port;
 		$this->host = $host;
 	}
-	
+
 	public function __toString() {
 		$k = base64_encode($this->key);
 		return sprintf('Session %s:%d identified by base64:%s', $this->host, $this->port, $k);
@@ -582,7 +582,7 @@ class Rserve_Session {
 
 /**
  * RServe Exception
- * @author Clément Turbelin
+ * @author Clï¿½ment Turbelin
  *
  */
 class Rserve_Exception extends Exception {
