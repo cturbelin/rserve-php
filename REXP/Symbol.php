@@ -12,32 +12,33 @@
 * R symbol element
 */
 class Rserve_REXP_Symbol extends Rserve_REXP {
-	
+
 	protected $name;
-	
+
 	public function setValue($value) {
-		$this->name = $value;	
+		$this->name = $value;
 	}
-	
+
 	public function getValue() {
 		return $this->name;
 	}
-	
+
 	public function isSymbol() { return TRUE; }
-	
+
 	public function getType() {
 		return Rserve_Parser::XT_SYM;
 	}
 
 	public function toHTML() {
-	 return '<div class="rexp xt_'.$this->getType().'"><span class="typename">'.Rserve_Parser::xtName($this->getType()).'</span>'.$this->name.$this->attrToHTML().'</div>';	
+	 return '<div class="rexp xt_'.$this->getType().'"><span class="typename">'.Rserve_Parser::xtName($this->getType()).'</span>'.$this->name.$this->attrToHTML().'</div>';
 	}
 
 	public function __toString() {
 		return $this->name;
 	}
-	
-    public function length() {
-        return 1;
-    }
+
+	public function length() {
+		return 1;
+	}
+
 }

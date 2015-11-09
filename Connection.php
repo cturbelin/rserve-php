@@ -265,9 +265,9 @@ class Rserve_Connection {
 
 	/**
 	 * Login to rserve
-         * Similar to RSlogin  http://rforge.net/doc/packages/RSclient/Rclient.html
-         * Inspired from https://github.com/SurajGupta/RserveCLI2/blob/master/RServeCLI2/Qap1.cs
-         *               https://github.com/SurajGupta/RserveCLI2/blob/master/RServeCLI2/RConnection.cs
+	 * Similar to RSlogin  http://rforge.net/doc/packages/RSclient/Rclient.html
+	 * Inspired from https://github.com/SurajGupta/RserveCLI2/blob/master/RServeCLI2/Qap1.cs
+	 *               https://github.com/SurajGupta/RserveCLI2/blob/master/RServeCLI2/RConnection.cs
 	 * @param string $salt
 	 */
 	public function login($salt=null) {
@@ -480,7 +480,6 @@ class Rserve_Connection {
 		echo "]\n";
 	}
 
-
 	/**
 	 * Data Type value to label
 	 * @param int $x
@@ -586,11 +585,14 @@ class Rserve_Session {
  *
  */
 class Rserve_Exception extends Exception {
+
 	public $packet;
+
 	public function __construct($message, $packet=NULL) {
 		parent::__construct($message);
 		$this->packet = $packet;
 	}
+
 }
 
 class Rserve_Parser_Exception extends Rserve_Exception {

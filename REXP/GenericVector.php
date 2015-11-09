@@ -13,10 +13,9 @@
 * Generic vector is used to handle complex structure like data.frame() or lists()
 */
 class Rserve_REXP_GenericVector extends Rserve_REXP_Vector {
-	
-	public function isList() { 
-        return true; 
-    }
-	
-	
+
+	public function isList() {
+		return true;
+	}
+
 }

@@ -12,18 +12,17 @@
 * R Null value
 */
 class Rserve_REXP_Null extends Rserve_REXP {
-	
-	public function isList() { 
-        return TRUE; 
-    }
-	
-    public function isNull() { 
-        return TRUE; 
-    }
-	
+
+	public function isList() {
+		return TRUE;
+	}
+
+	public function isNull() {
+		return TRUE;
+	}
+
 	public function getType() {
 		return Rserve_Parser::XT_NULL;
 	}
-	
-	
+
 }
