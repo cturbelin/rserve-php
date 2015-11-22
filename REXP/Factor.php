@@ -3,7 +3,7 @@
 * Rserve client for PHP
 * Supports Rserve protocol 0103 only (used by Rserve 0.5 and higher)
 * $Revision$
-* @author Clément TURBELIN
+* @author ClÃ©ment TURBELIN
 * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
 * This code is inspired from Java client for Rserve (Rserve package v0.6.2) developped by Simon Urbanek(c)
 */
@@ -14,31 +14,31 @@
 * Caution: first level is coded as a 1 value
 */
 class Rserve_REXP_Factor extends Rserve_REXP_Integer {
-	
+
 	protected $levels;
-	
-	public function isFactor() { 
-		return TRUE; 
+
+	public function isFactor() {
+		return TRUE;
 	}
-	
+
 	/**
-    * get levels
-    * @return string
-    */
-    public function getLevels() {
+	 * get levels
+	 * @return string
+	 */
+	public function getLevels() {
 		return $this->levels;
 	}
-	
+
 	/**
-    * Set levels from
-    */
-    public function setLevels($levels) {
-    	if($levels instanceof Rserve_REXP_String) {
-    		$levels = $levels->getValues();
-    	}
+	 * Set levels from
+	 */
+	public function setLevels($levels) {
+		if($levels instanceof Rserve_REXP_String) {
+			$levels = $levels->getValues();
+		}
 		$this->levels = $levels;
 	}
-	
+
 	/**
 	 * Convert an levels encoded vector to a character vector
 	 * @return Rserve_REXP
@@ -53,11 +53,11 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 		$rexp->setValues($r);
 		return $$rexp;
 	}
-	
+
 	public function getType() {
 		return Rserve_Parser::XT_FACTOR;
 	}
-	
+
 	public function setAttributes(Rserve_REXP_List $attr) {
 		parent::setAttributes($attr);
 		$lev = $this->getAttribute('levels');
@@ -65,11 +65,12 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 			$lev = $lev->getValues();
 			$levels = array();
 			$i = 0;
-            foreach($lev as $l) {
+			foreach($lev as $l) {
 				++$i;
-                $levels[$i] =(string)$l; // force string for convinience
-            }	
+				$levels[$i] =(string)$l; // force string for convinience
+			}
 			$this->levels = $levels;
 		}
 	}
+
 }
