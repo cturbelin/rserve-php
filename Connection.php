@@ -268,16 +268,19 @@ class Rserve_Connection {
 	 * @param string $salt
 	 */
 	public function login($salt=null) {
-		switch ( $this->auth_method )
+		if($this->auth_request)
 		{
-		case "plain":
-			break;
-		case "crypt":
-			if(!$salt) throw new Rserve_Exception("Should pass the salt for login");
-			$this->password=crypt($this->password,$salt);
-			break;
-		default:
-			throw new Rserve_Exception( "Could not interpret login method '{$this->auth_method}'" );
+			switch ( $this->auth_method )
+			{
+			case "plain":
+				break;
+			case "crypt":
+				if(!$salt) throw new Rserve_Exception("Should pass the salt for login");
+				$this->password=crypt($this->password,$salt);
+				break;
+			default:
+				throw new Rserve_Exception( "Could not interpret login method '{$this->auth_method}'" );
+			}
 		}
 		$data = _rserve_make_data(self::DT_STRING, "{$this->username}\n{$this->password}");
 		$r=$this->sendCommand(self::CMD_login, $data );
