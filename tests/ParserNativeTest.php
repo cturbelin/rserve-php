@@ -1,8 +1,8 @@
 <?php
 
-require_once 'config.php';
-require_once dirname(__FILE__).'/../Connection.php';
-require_once 'Definition.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../Connection.php';
+require_once __DIR__ . '/Definition.php';
 
 class ParserNativeTest extends PHPUnit_Framework_TestCase {
 

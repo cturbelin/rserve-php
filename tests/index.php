@@ -2,13 +2,13 @@
 /**
 * Rserve-php example
 */
-require_once 'config.php';
-require '../Connection.php';
-require 'Definition.php';
+require_once __DIR__ . '/config.php';
+require __DIR__ . '/../Connection.php';
+require __DIR__ . '/Definition.php';
 
 $test_cases = Rserve_Tests_Definition::$native_tests;
 
-require 'example/head.php';
+require __DIR__ . '/example/head.php';
 
 function mydump($x, $title=NULL) {
 	if($title) {
@@ -107,6 +107,6 @@ try {
 	echo $e;
 }
 
-require 'example/foot.php';
+require __DIR__ . '/example/foot.php';
 
 ?>
