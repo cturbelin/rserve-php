@@ -7,8 +7,8 @@
  * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
  * $Id$
  */
-require_once 'helpers.php';
-require_once 'Parser.php';
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/Parser.php';
 
 /**
  * Handle Connection and communicating with Rserve instance (QAP1 protocol)
