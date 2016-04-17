@@ -1,0 +1,17 @@
+{
+    "name": "cturbelin/rserve-php",
+    "type": "library",
+    "description": "Rserve client library for PHP",
+    "keywords": ["R","Rserve","Stats"],
+    "homepage": "https://github.com/cturbelin/rserve-php",
+    "licence": "LGPL-2.1",
+    "authors": [
+        {
+            "name": "Clément Turbelin",
+            "email": "clement.turbelin@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.0"
+    }
+}
