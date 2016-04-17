@@ -5,12 +5,6 @@ namespace Sentiweb\Rserve\Parser;
 use Sentiweb\Rserve\Parser;
 use Sentiweb\Rserve\ArrayWrapper;
 
-use Sentiweb\Rserve\_rserve_int8;
-use Sentiweb\Rserve\_rserve_int24;
-use Sentiweb\Rserve\_rserve_int32;
-use Sentiweb\Rserve\_rserve_flt64;
-
-
 /**
  * Parse SEXP to debug array
  * 
