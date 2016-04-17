@@ -83,6 +83,6 @@ Files Description
 
 Contacts
 --------
-Clément Turbelin, clement.turbelin@gmail.com
+ClÃ©ment Turbelin, clement.turbelin@gmail.com
 http://www.sentiweb.fr
-Université Pierre et Marie Curie - Paris 6, France
+UniversitÃ© Pierre et Marie Curie - Paris 6, France
