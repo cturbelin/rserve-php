@@ -56,15 +56,15 @@ class NativeArray extends Parser {
 				while ($i < $eoa) {
 					$a[] = $this->parse($buf, $i);
 				}
+				
 				// if the 'names' attribute is set, convert the plain array into a map
 				if ( isset($attr['names']) ) {
 					$names = $attr['names'];
-					$na = array();
-					$n = count($a);
-					for ($k = 0; $k < $n; $k++) {
-						$na[$names[$k]] = $a[$k];
+					if(is_string($names)) {
+						$names = array($names);
 					}
-					$a = $na;
+					$a = array_combine($names, $a);
+					
 				}
 				break;
 	
