@@ -31,4 +31,7 @@ class RNull extends REXP {
 		return Parser::XT_NULL;
 	}
 
+	public function __toString() {
+		return '<NULL>';
+	}
 }
