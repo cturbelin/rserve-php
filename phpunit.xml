@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="src/autoload.php">
+  <testsuites>
+    <testsuite name="parser">
+      <file>tests/ParserNativeTest.php</file>
+      <file>tests/REXPTest.php</file>
+    </testsuite>
+    <testsuite name="actions">
+      <file>tests/SessionTest.php</file>
+      <file>tests/LoginTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>

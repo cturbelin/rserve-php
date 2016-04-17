@@ -1,8 +1,9 @@
 <?php
 
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/../Connection.php';
 require_once __DIR__ . '/Definition.php';
+
+use Sentiweb\Rserve\Connection;
 
 class ParserNativeTest extends PHPUnit_Framework_TestCase {
 
@@ -16,7 +17,7 @@ class ParserNativeTest extends PHPUnit_Framework_TestCase {
 	 */
 	protected function setUp() {
 		if(!self::$cnx) {
-			self::$cnx = new Rserve_Connection(RSERVE_HOST);
+			self::$cnx = new Connection(RSERVE_HOST);
 		}
 		$this->rserve = self::$cnx;
 	}

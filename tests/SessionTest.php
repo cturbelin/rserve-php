@@ -1,13 +1,14 @@
 <?php
 
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/../Connection.php';
+
+use Sentiweb\Rserve\Connection;
 
 class SessionTest extends PHPUnit_Framework_TestCase {
 
 
 	public function testSession() {
-		$cnx = new Rserve_Connection(RSERVE_HOST);
+		$cnx = new Connection(RSERVE_HOST);
 
 		// random id
 		$random = '';
@@ -22,7 +23,7 @@ class SessionTest extends PHPUnit_Framework_TestCase {
 
 		$session = $cnx->detachSession();
 
-		$cnx = new Rserve_Connection($session);
+		$cnx = new Connection($session);
 
 		$x = $cnx->evalString('x');
 

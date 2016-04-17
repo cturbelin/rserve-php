@@ -1,16 +1,19 @@
 <?php
 
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/../Connection.php';
 
-class SessionTest extends PHPUnit_Framework_TestCase {
+use Sentiweb\Rserve\Connection;
+use Sentiweb\Rserve\Serializer;
+use Sentiweb\Rserve\Parser\REXP as Parser_REXP;
+
+class REXPTest extends PHPUnit_Framework_TestCase {
 
 
 	private function create_REXP($values, $type, $options=array()) {
-		$cn = 'Rserve_REXP_'.$type;
+		$cn = 'Sentiweb\\Rserve\\REXP\\'.$type;
 		$r = new $cn();
-		if(is_subclass_of($r, 'Rserve_REXP_Vector')) {
-			if( is_subclass_of($r,'Rserve_REXP_List') AND @$options['named']) {
+		if(is_subclass_of($r, 'Sentiweb\\Rserve\\REXP\\Vector')) {
+			if( is_subclass_of($r,'Sentiweb\\Rserve\\REXP\\RList') AND @$options['named']) {
 				$r->setValues($values, TRUE);
 			} else {
 				$r->setValues($values);
@@ -37,13 +40,18 @@ class SessionTest extends PHPUnit_Framework_TestCase {
 	 * @param unknown_type $values
 	 */
 	public function testParser($type, $values) {
+		
+		$serializer = new Serializer();
+		
+		
 		$rexp = $this->create_REXP($values, $type);
 
-		$bin = Rserve_Parser::createBinary($rexp);
+		$bin = $serializer->serialize($rexp);
 
 		$i = 0; // No offset
 		
-		$r2 = Rserve_Parser::parseREXP($bin, $i);
+		$parser = new Parser_REXP();
+		$r2 = $parser->parse($bin, $i);
 
 		$this->assertEquals( get_class($rexp), get_class($r2));
 

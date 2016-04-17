@@ -35,23 +35,23 @@
 
 //======= helper functions
 $machine_is_bigendian = pack("s", 1); $machine_is_bigendian = ($machine_is_bigendian[0] == 0);
-function int8($buf, $o=0) { return ord($buf[$o]); }
-function int24($buf, $o=0) { return (ord($buf[$o]) | (ord($buf[$o + 1]) << 8) | (ord($buf[$o + 2]) << 16)); }
-function int32($buf, $o=0) { return (ord($buf[$o]) | (ord($buf[$o + 1]) << 8) | (ord($buf[$o + 2]) << 16) | (ord($buf[$o + 3]) << 24)); }
-function mkint32($i) { $r = chr($i & 255); $i >>= 8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); return $r; }
-function mkint24($i) { $r = chr($i & 255); $i >>= 8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); return $r; }
-function flt64($buf, $o=0) { $ss = substr($buf, $o, 8); if ($machine_is_bigendian) for ($k = 0; $k < 7; $k++) $ss[7 - $k] = $buf[$o + $k]; $r = unpack("d", substr($buf, $o, 8)); return $r[1]; }
+function _rserve_int8($buf, $o=0) { return ord($buf[$o]); }
+function _rserve_int24($buf, $o=0) { return (ord($buf[$o]) | (ord($buf[$o + 1]) << 8) | (ord($buf[$o + 2]) << 16)); }
+function _rserve_int32($buf, $o=0) { return (ord($buf[$o]) | (ord($buf[$o + 1]) << 8) | (ord($buf[$o + 2]) << 16) | (ord($buf[$o + 3]) << 24)); }
+function _rserve_mkint32($i) { $r = chr($i & 255); $i >>= 8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); return $r; }
+function _rserve_mkint24($i) { $r = chr($i & 255); $i >>= 8; $r .= chr($i & 255); $i >>=8; $r .= chr($i & 255); return $r; }
+function _rserve_flt64($buf, $o=0) { $ss = substr($buf, $o, 8); if ($machine_is_bigendian) for ($k = 0; $k < 7; $k++) $ss[7 - $k] = $buf[$o + $k]; $r = unpack("d", substr($buf, $o, 8)); return $r[1]; }
 
 function mkp_str($cmd, $string) {
 	$n = strlen($string) + 1; $string .= chr(0);
 	while (($n & 3) != 0) { $string .= chr(1); $n++; }
-	return mkint32($cmd) . mkint32($n + 4) . mkint32(0) . mkint32(0) . chr(4) . mkint24($n) . $string;
+	return _rserve_mkint32($cmd) . _rserve_mkint32($n + 4) . _rserve_mkint32(0) . _rserve_mkint32(0) . chr(4) . _rserve_mkint24($n) . $string;
 }
 
 function get_rsp($socket) {
 	$n = socket_recv($socket, $buf, 16, 0);
 	if ($n != 16) return FALSE;
-	$len = int32($buf, 4);
+	$len = _rserve_int32($buf, 4);
 	$ltg = $len;
 	while ($ltg > 0) {
 		$n = socket_recv($socket, $b2, $ltg, 0);
@@ -65,8 +65,8 @@ function parse_SEXP($buf, $offset, $attr = NULL) {
 	$r = $buf;
 	$i = $offset;
 	// some simple parsing - just skip attributes and assume short responses
-	$ra = int8($r, $i);
-	$rl = int24($r, $i + 1);
+	$ra = _rserve_int8($r, $i);
+	$rl = _rserve_int24($r, $i + 1);
 	$i += 4;
 	$offset = $eoa = $i + $rl;
 	// echo "[data type ".($ra & 63).", length ".$rl." with payload from ".$i." to ".$eoa."]<br/>\n";
@@ -75,7 +75,7 @@ function parse_SEXP($buf, $offset, $attr = NULL) {
 	}
 	if ($ra > 127) {
 		$ra &= 127;
-		$al = int24($r, $i + 1);
+		$al = _rserve_int24($r, $i + 1);
 		$attr = parse_SEXP($buf, $i);
 		$i += $al + 4;
 	}
@@ -108,13 +108,13 @@ function parse_SEXP($buf, $offset, $attr = NULL) {
 	}
 	if ($ra == 32) { // integer array
 		$a = array();
-		while ($i < $eoa) { $a[] = int32($r, $i); $i += 4; }
+		while ($i < $eoa) { $a[] = _rserve_int32($r, $i); $i += 4; }
 		if (count($a) == 1) return $a[0];
 		return $a;
 	}
 	if ($ra == 33) { // double array
 		$a = array();
-		while ($i < $eoa) { $a[] = flt64($r, $i); $i += 8; }
+		while ($i < $eoa) { $a[] = _rserve_flt64($r, $i); $i += 8; }
 		if (count($a) == 1) return $a[0];
 		return $a;
 	}
@@ -132,18 +132,18 @@ function parse_SEXP($buf, $offset, $attr = NULL) {
 		return $a;
 	}
 	if ($ra == 36) { // boolean vector
-		$n = int32($r, $i); $i += 4; $k = 0;
+		$n = _rserve_int32($r, $i); $i += 4; $k = 0;
 		$a = array();
-		while ($k < $n) { $v = int8($r, $i++); $a[$k++] = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL); }
+		while ($k < $n) { $v = _rserve_int8($r, $i++); $a[$k++] = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL); }
 		if ($n == 1) return $a[0];
 		return $a;
 	}
 	if ($ra == 37) { // raw vector
-		$len = int32($r, $i); $i += 4;
+		$len = _rserve_int32($r, $i); $i += 4;
 		return substr($r, $i, $len);
 	}
 	if ($ra == 48) { // unimplemented type in Rserve
-		$uit = int32($r, $i);
+		$uit = _rserve_int32($r, $i);
 		// echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
 		return NULL;
 	}
@@ -181,11 +181,11 @@ function Rserve_eval($socket, $command, $attr = NULL) {
 	$pkt = mkp_str(3, $command);
 	socket_send($socket, $pkt, strlen($pkt), 0);
 	$r = get_rsp($socket);
-	$res = int32($r);
+	$res = _rserve_int32($r);
 	$sc = ($res >> 24) & 127;
 	$rr = $res & 255;
 	if ($rr != 1) { echo "eval failed with error code " . $sc; return FALSE; }
-	if (int8($r, 16) != 10) { echo "invalid response (expecting SEXP)"; return FALSE; }
+	if (_rserve_int8($r, 16) != 10) { echo "invalid response (expecting SEXP)"; return FALSE; }
 	$i = 20;
 	return parse_SEXP($r, $i, &$attr);
 }

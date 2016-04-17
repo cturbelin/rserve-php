@@ -5,15 +5,21 @@
  */
 
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/../Connection.php';
+
+use Sentiweb\Rserve\Connection;
 
 class LoginTest extends PHPUnit_Framework_TestCase {
 
 	public function testLogin() {
+		
+		if(!(defined('RSERVE_USER') && defined('RSERVE_PASS')) ) {
+			$this->markTestSkipped('login configuration not defined.');
+			return;
+		}
 
-		$cnx = new Rserve_Connection(RSERVE_HOST,RSERVE_PORT,
-			array('username'=>RSERVE_USER,'password'=>RSERVE_PASS)
-		);
+		$params = array('username'=>RSERVE_USER,'password'=>RSERVE_PASS);
+		
+		$cnx = new Connection(RSERVE_HOST, RSERVE_PORT, $params);
 
 		// random id
 		$random = '';
@@ -26,6 +32,5 @@ class LoginTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals($r, $random_id);
 
-		$session = $cnx->detachSession();
 	}
 }
