@@ -76,9 +76,9 @@ class Rserve_Connection {
 	const ERR_session_busy	= 0x50;
 	const ERR_detach_failed	= 0x51;
 
-	public static $machine_is_bigendian = NULL;
+	public static $machine_is_bigendian = null;
 
-	private static $init = FALSE;
+	private static $init = false;
 
 	private $host;
 	private $port;
@@ -106,19 +106,19 @@ class Rserve_Connection {
 		$m = pack('s', 1);
 		self::$machine_is_bigendian = ($m[0] == 0);
 		spl_autoload_register('Rserve_Connection::autoload');
-		self::$init = TRUE;
+		self::$init = true;
 	}
 
 	public static function autoload($name) {
 		$s = strtolower(substr($name, 0, 6));
 		if($s != 'rserve') {
-			return FALSE;
+			return false;
 		}
 		$s = substr($name, 7);
 		$s = str_replace('_', '/', $s);
 		$s .= '.php';
 		require $s;
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -141,12 +141,12 @@ class Rserve_Connection {
 		} else {
 			$this->host = $host;
 			$this->port = $port;
-			$session = NULL;
+			$session = null;
 		}
-		$this->debug = isset($params['debug']) ? (bool)$params['debug'] : FALSE;
-		$this->async = isset($params['async']) ? (bool)$params['async'] : FALSE;
-		$this->username = isset($params['username']) ? $params['username'] : FALSE;
-		$this->password = isset($params['password']) ? $params['password'] : FALSE;
+		$this->debug = isset($params['debug']) ? (bool)$params['debug'] : false;
+		$this->async = isset($params['async']) ? (bool)$params['async'] : false;
+		$this->username = isset($params['username']) ? $params['username'] : false;
+		$this->password = isset($params['password']) ? $params['password'] : false;
 		$this->encoding = isset($params['encoding']) ? $params['encoding'] : false;
 		
 		$this->openSocket($session);
@@ -156,7 +156,7 @@ class Rserve_Connection {
 	 * Open a new socket to Rserv
 	 * @return resource socket
 	 */
-	private function openSocket($session_key = NULL) {
+	private function openSocket($session_key = null) {
 		if( $this->port == 0 ) {
 			$socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 		} else {
@@ -196,22 +196,22 @@ class Rserve_Connection {
 			throw new Rserve_Exception('Unsupported protocol version.');
 		}
 		$key=null;
-		$this->auth_request = FALSE;
+		$this->auth_request = false;
 		for($i = 12; $i < 32; $i += 4) {
 			$attr = substr($buf, $i, 4);
 			if($attr == 'ARpt') {
-				$this->auth_request = TRUE;
+				$this->auth_request = true;
 				$this->auth_method = 'plain';
 
 			} elseif($attr == 'ARuc') {
-				$this->auth_request = TRUE;
+				$this->auth_request = true;
 				$this->auth_method = 'crypt';
 			}
 			if($attr[0] === 'K') {
 				$key = substr($attr, 1, 3);
 			}
 		}
-		if($this->auth_request === TRUE) {
+		if($this->auth_request === true) {
 			if($this->auth_method=="plain") $this->login(); else $this->login($key);
 		}
 		
@@ -249,7 +249,7 @@ class Rserve_Connection {
 			throw new Rserve_Exception('Unexpected packet Data type (expect DT_SEXP)', $buf);
 		}
 		$i = 4; // + 4 bytes (Data part HEADER)
-		$r = NULL;
+		$r = null;
 		switch($parser) {
 			case self::PARSER_NATIVE:
 				$r = Rserve_Parser::parse($buf, $i);
@@ -262,7 +262,7 @@ class Rserve_Connection {
 				break;
 			case self::PARSER_NATIVE_WRAPPED:
 				$old = Rserve_Parser::$use_array_object;
-				Rserve_Parser::$use_array_object = TRUE;
+				Rserve_Parser::$use_array_object = true;
 				$r = Rserve_Parser::parse($buf, $i);
 				Rserve_Parser::$use_array_object = $old;
 				break;
@@ -311,7 +311,7 @@ class Rserve_Connection {
 
 		$r = $this->sendCommand(self::CMD_eval, $data );
 		if($this->async) {
-			return TRUE;
+			return true;
 		}
 		if( !$r['is_error'] ) {
 				return $this->parseResponse($r['contents'], $parser);
@@ -327,7 +327,7 @@ class Rserve_Connection {
 	 * @throws Rserve_Exception
 	 */
 	public function detachSession() {
-		$r = $this->sendCommand(self::CMD_detachSession, NULL);
+		$r = $this->sendCommand(self::CMD_detachSession, null);
 		if( !$r['is_error'] ) {
 			$x = $r['contents'];
 			if( strlen($x) != (32+3*4) ) {
@@ -367,11 +367,11 @@ class Rserve_Connection {
 	 * @return array contents
 	 */
 	protected function getResponse() {
-		$header = NULL;
+		$header = null;
 		$n = socket_recv($this->socket, $header, 16, 0);
 		if ($n != 16) {
 			// header should be sent in one block of 16 bytes
-			return FALSE;
+			return false;
 		}
 		$len = int32($header, 4);
 		$ltg = $len; // length to get
@@ -431,7 +431,7 @@ class Rserve_Connection {
 	 * send a command to Rserve
 	 * @param int $command command code
 	 * @param string $data data packets
-	 * @return int	if $async, TRUE
+	 * @return int	if $async, true
 	 */
 	protected function sendCommand($command, $data) {
 
@@ -444,7 +444,7 @@ class Rserve_Connection {
 		socket_send($this->socket, $pkt, strlen($pkt), 0);
 
 		if($this->async) {
-			return TRUE;
+			return true;
 		}
 		// get response
 		return $this->getResponse();
@@ -601,7 +601,7 @@ class Rserve_Exception extends Exception {
 
 	public $packet;
 
-	public function __construct($message, $packet=NULL) {
+	public function __construct($message, $packet=null) {
 		parent::__construct($message);
 		$this->packet = $packet;
 	}

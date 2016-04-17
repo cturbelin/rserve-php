@@ -20,7 +20,7 @@ class Rserve_REXP {
 	 * List of attributes associated with the R object
 	 * @var Rserve_REXP_List
 	 */
-	protected $attr = NULL;
+	protected $attr = null;
 
 	public function __construct() {
 	}
@@ -40,9 +40,9 @@ class Rserve_REXP {
 	 */
 	public function hasAttribute($name) {
 		if( !$this->attr ) {
-			return FALSE;
+			return false;
 		}
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Rserve_REXP {
 	 */
 	public function getAttribute($name) {
 		if( !$this->attr ) {
-			return NULL;
+			return null;
 		}
 		return $this->attr->at($name);
 	}
@@ -70,7 +70,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isVector() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -78,7 +78,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isInteger() {
-			return FALSE;
+			return false;
 	}
 
 	/**
@@ -86,7 +86,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isNumeric() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isLogical() {
-		 return FALSE;
+		 return false;
 	}
 
 	/**
@@ -102,7 +102,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isString() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -110,7 +110,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isSymbol() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -118,7 +118,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isRaw() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -126,7 +126,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isList() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -134,7 +134,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isNull() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -142,7 +142,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isLanguage() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -150,7 +150,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isFactor() {
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -158,7 +158,7 @@ class Rserve_REXP {
 	 * @return bool
 	 */
 	public function isExpression() {
-		return FALSE;
+		return false;
 	}
 
 	/**

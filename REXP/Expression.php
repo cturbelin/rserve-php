@@ -11,7 +11,7 @@
 class Rserve_REXP_Factor extends Rserve_REXP_GenericVector {
 	
 	public function isExpression() { 
-		return TRUE; 
+		return true; 
 	}
 	
 	public function getType() {

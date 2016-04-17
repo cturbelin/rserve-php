@@ -23,7 +23,9 @@ class Rserve_REXP_Symbol extends Rserve_REXP {
 		return $this->name;
 	}
 
-	public function isSymbol() { return TRUE; }
+	public function isSymbol() { 
+		return true; 
+	}
 
 	public function getType() {
 		return Rserve_Parser::XT_SYM;

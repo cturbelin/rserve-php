@@ -18,7 +18,7 @@ class Rserve_REXP_Factor extends Rserve_REXP_Integer {
 	protected $levels;
 
 	public function isFactor() {
-		return TRUE;
+		return true;
 	}
 
 	/**

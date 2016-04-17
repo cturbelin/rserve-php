@@ -25,7 +25,7 @@ class Rserve_RNative implements ArrayAccess {
 	 * Parsed expression type
 	 * @var int (Rserve_Connection XT_* const value)
 	 */
-	private $type = NULL;
+	private $type = null;
 
 	/**
 	 *
@@ -33,7 +33,7 @@ class Rserve_RNative implements ArrayAccess {
 	 * @param Rserve_RNative $attributes
 	 * @param int $exp_type expression type
 	 */
-	public function __construct($data, $attributes = NULL, $exp_type = NULL) {
+	public function __construct($data, $attributes = null, $exp_type = null) {
 		$this->data = $data;
 		$this->attr = $attributes;
 		$this->type = $exp_type;
@@ -44,7 +44,7 @@ class Rserve_RNative implements ArrayAccess {
 	 * @return mixed
 	 */
 	public function getAttr($name) {
-		return isset($this->attr[$name]) ? $this->attr[$name] : NULL;
+		return isset($this->attr[$name]) ? $this->attr[$name] : null;
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Rserve_RNative implements ArrayAccess {
 	 * @param string $name
 	 */
 	public function hasAttr($name) {
-	return isset($this->attr[$name]) ? TRUE : FALSE;
+	return isset($this->attr[$name]) ? true : false;
 	}
 
 	/**

@@ -14,10 +14,10 @@
 class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 
 	protected $names = array();
-	protected $is_named = FALSE;
+	protected $is_named = false;
 
-	public function setValues($values, $getNames = FALSE) {
-		$names = NULL;
+	public function setValues($values, $getNames = false) {
+		$names = null;
 		if( $getNames ) {
 			$names = array_keys($values);
 		}
@@ -41,7 +41,7 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 			$nn[] = (string)$n;
 		}
 		$this->names = $nn;
-		$this->is_named = TRUE;
+		$this->is_named = true;
 	}
 
 	/**
@@ -53,7 +53,7 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 	}
 
 	/**
-	 * return TRUE if the list is named
+	 * return true if the list is named
 	 * @return bool
 	 */
 	public function isNamed() {
@@ -69,7 +69,7 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 		if( $this->is_named ) {
 			$i = array_search($name, $this->names);
 			if($i < 0) {
-				return NULL;
+				return null;
 			}
 			return $this->values[$i];
 		}
@@ -90,7 +90,7 @@ class Rserve_REXP_List extends Rserve_REXP_Vector implements ArrayAccess {
 	}
 
 	public function isList() { 
-		return TRUE; 
+		return true; 
 	}
 
 	public function offsetExists($offset) {

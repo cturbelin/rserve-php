@@ -30,7 +30,9 @@ class Rserve_REXP_Raw extends Rserve_REXP {
 		return $this->value;
 	}
 	
-	public function  isRaw() { return TRUE; }
+	public function  isRaw() { 
+		return TRUE; 
+	}
 	
 	public function getType() {
 		return Rserve_Parser::XT_RAW;

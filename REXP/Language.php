@@ -14,7 +14,7 @@
 class Rserve_REXP_Language extends Rserve_REXP_List {
 
 	public function isLanguage() {
-		return TRUE;
+		return true;
 	}
 
 	public function getType() {

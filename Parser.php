@@ -102,13 +102,13 @@ class Rserve_Parser {
 	* Global parameters to parse() function
 	* If true, use Rserve_RNative wrapper instead of native array to handle attributes
 	*/
-	public static $use_array_object = FALSE;
+	public static $use_array_object = false;
 
 	/**
 	 * Transform factor to native strings, only for parse() method
 	 * If false, factors are parsed as integers
 	 */
-	public static $factor_as_string = TRUE;
+	public static $factor_as_string = true;
 
 	/**
 	 * SEXP to php array parser
@@ -143,7 +143,7 @@ class Rserve_Parser {
 		}
 		switch($ra) {
 			case self::XT_NULL:
-				$a = NULL;
+				$a = null;
 				break;
 			case self::XT_VECTOR: // generic vector
 				$a = array();
@@ -174,7 +174,7 @@ class Rserve_Parser {
 
 			case self::XT_BOOL:
 				$v = int8($r, $i++);
-				$a = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
+				$a = ($v == 1) ? true : (($v == 0) ? false : null);
 				break;
 
 			case self::XT_SYM:
@@ -224,7 +224,7 @@ class Rserve_Parser {
 						for($k = 0; $k < $n; ++$k) {
 							$i = $a[$k];
 							if($i < 0) {
-								$a[$k] = NULL;
+								$a[$k] = null;
 							} else {
 								$a[$k] = $levels[ $i -1];
 							}
@@ -266,7 +266,7 @@ class Rserve_Parser {
 				$a = array();
 				while ($k < $n) {
 					$v = int8($r, $i++);
-					$a[$k++] = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
+					$a[$k++] = ($v == 1) ? true : (($v == 0) ? false : null);
 				}
 				if ($n == 1) {
 					$a =  $a[0];
@@ -298,12 +298,12 @@ class Rserve_Parser {
 			case 48: // unimplemented type in Rserve
 				$uit = int32($r, $i);
 				// echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
-				$a = NULL;
+				$a = null;
 				break;
 
 			default:
 				echo 'Warning: type '.$ra.' is currently not implemented in the PHP client.';
-				$a = NULL;
+				$a = null;
 		} // end switch
 
 		if( self::$use_array_object ) {
@@ -326,7 +326,7 @@ class Rserve_Parser {
 		$i = $offset;
 
 		// some simple parsing - just skip attributes and assume short responses
-		$attr =  NULL;
+		$attr =  null;
 		$ra = int8($r, $i);
 		$rl = int24($r, $i + 1);
 		$i += 4;
@@ -340,7 +340,7 @@ class Rserve_Parser {
 		$result['offset'] = $i;
 		$result['eoa'] = $eoa;
 		if (($ra & 64) == 64) {
-			$result['long'] = TRUE;
+			$result['long'] = true;
 			return $result;
 		}
 		if ($ra > self::XT_HAS_ATTR) {
@@ -427,7 +427,7 @@ class Rserve_Parser {
 			$a = array();
 			while ($k < $n) {
 				$v = int8($r, $i++);
-				$a[$k] = ($v === 1) ? TRUE : (($v === 0) ? FALSE : NULL);
+				$a[$k] = ($v === 1) ? true : (($v === 0) ? false : null);
 				++$k;
 			}
 			if (count($a) == 1) {
@@ -468,7 +468,7 @@ class Rserve_Parser {
 	* SEXP to REXP objects parser
 	*/
 	public static function parseREXP($buf, &$offset) {
-		$attr = NULL;
+		$attr = null;
 		$r = $buf;
 		$i = $offset;
 
@@ -598,7 +598,7 @@ class Rserve_Parser {
 				$vv = array();
 				while ($k < $n) {
 					$v = int8($r, $i++);
-					$vv[$k] = ($v == 1) ? TRUE : (($v == 0) ? FALSE : NULL);
+					$vv[$k] = ($v == 1) ? true : (($v == 0) ? false : null);
 					$k++;
 				}
 				$a = new Rserve_REXP_Logical();
@@ -629,7 +629,7 @@ class Rserve_Parser {
 				case 48: // unimplemented type in Rserve
 				$uit = int32($r, $i);
 				// echo "Note: result contains type #$uit unsupported by Rserve.<br/>";
-				$a = NULL;
+				$a = null;
 				break;
 			*/
 			default:

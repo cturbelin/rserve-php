@@ -14,11 +14,11 @@
 class Rserve_REXP_Null extends Rserve_REXP {
 
 	public function isList() {
-		return TRUE;
+		return true;
 	}
 
 	public function isNull() {
-		return TRUE;
+		return true;
 	}
 
 	public function getType() {
