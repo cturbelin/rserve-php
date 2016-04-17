@@ -89,6 +89,12 @@ class Rserve_Connection {
 	private $debug;
 
 	private $ascync;
+	
+	/**
+	 * Encoding to use
+	 * @var string
+	 */
+	private $encoding;
 
 	/**
 	 * initialization of the library
@@ -141,6 +147,8 @@ class Rserve_Connection {
 		$this->async = isset($params['async']) ? (bool)$params['async'] : FALSE;
 		$this->username = isset($params['username']) ? $params['username'] : FALSE;
 		$this->password = isset($params['password']) ? $params['password'] : FALSE;
+		$this->encoding = isset($params['encoding']) ? $params['encoding'] : false;
+		
 		$this->openSocket($session);
 	}
 
@@ -205,6 +213,10 @@ class Rserve_Connection {
 		}
 		if($this->auth_request === TRUE) {
 			if($this->auth_method=="plain") $this->login(); else $this->login($key);
+		}
+		
+		if($this->encoding) {
+			$this->setEncoding($this->encoding);
 		}
 	}
 
@@ -344,7 +356,10 @@ class Rserve_Connection {
 		$r = $this->sendCommand(self::CMD_assignSEXP, $data);
 		return $r;
 	}
-
+	
+	public function setEncoding($encoding) {
+		$this->sendCommand(self::CMD_setEncoding, _rserve_make_data(self::DT_STRING, $encoding));
+	}
 
 	/**
 	 * Get the response from a command
