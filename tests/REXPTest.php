@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . 'config.php';
+require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/../Connection.php';
 
 class SessionTest extends PHPUnit_Framework_TestCase {
@@ -41,6 +41,8 @@ class SessionTest extends PHPUnit_Framework_TestCase {
 
 		$bin = Rserve_Parser::createBinary($rexp);
 
+		$i = 0; // No offset
+		
 		$r2 = Rserve_Parser::parseREXP($bin, $i);
 
 		$this->assertEquals( get_class($rexp), get_class($r2));
