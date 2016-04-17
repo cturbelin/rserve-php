@@ -2,10 +2,8 @@
 /**
  * Rserve client for PHP
  * Supports Rserve protocol 0103 only (used by Rserve 0.5 and higher)
- * $Revision$
  * @author Clément TURBELIN
  * Developped using code from Simple Rserve client for PHP by Simon Urbanek Licensed under GPL v2 or at your option v3
- * $Id$
  */
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/Parser.php';
