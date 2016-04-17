@@ -19,7 +19,7 @@ class Rserve_REXP_Raw extends Rserve_REXP {
 	 * return int
 	 */
 	public function length() {
-		return strlen($value);
+		return strlen($this->value);
 	}
 	
 	public function setValue($value) {
