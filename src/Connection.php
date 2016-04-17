@@ -27,6 +27,9 @@ class Connection {
 	const DT_BYTESTREAM = 5;
 	const DT_SEXP = 10;
 	const DT_ARRAY = 11;
+	
+	const DEFAULT_HOST = '127.0.0.1';
+	const DEFAULT_PORT = 6311;
 
 	/** this is a flag saying that the contents is large (>0xfffff0) and hence uses 56-bit length field */
 	const DT_LARGE = 64;
@@ -113,20 +116,32 @@ class Connection {
 	}
 
 	/**
-	 *  @param mixed host name or IP or a Rserve_Session instance
+	 *  @param mixed host or a Rserve_Session instance or an array of parameters
 	 *  @param int $port if 0 then host is interpreted as unix socket,
+	 *  @param array params
+	 *  
+	 *  If host is an array then further arguments are ignored
+	 *  (all options should be passed using this array)
+	 *  
+	 *  If
 	 *
 	 */
-	public function __construct($host='127.0.0.1', $port = 6311, $params=array()) {
+	public function __construct($host=self::DEFAULT_HOST, $port = self::DEFAULT_PORT, $params=array()) {
 		if( !self::$init ) {
 			self::init();
 		}
-		if(is_object($host) AND $host instanceof Rserve_Session) {
+		
+		if( is_array($host) ) {
+			$params = $host;
+			$this->host = isset($params['host']) ? $params['host'] : self::DEFAULT_HOST;
+			$this->port = isset($params['port']) ? $params['port'] : self::DEFAULT_PORT;
+			
+ 		} elseif(is_object($host) AND $host instanceof Rserve_Session) {
 			$session = $host->key;
 			$this->port = $host->port;
 			$host = $host->host;
 			if( !$host ) {
-				$host = '127.0.0.1';
+				$host = self::DEFAULT_HOST;
 			}
 			$this->host = $host;
 		} else {
@@ -140,6 +155,7 @@ class Connection {
 		$this->password = isset($params['password']) ? $params['password'] : false;
 		$this->encoding = isset($params['encoding']) ? $params['encoding'] : false;
 		
+		// Internal parser used for basic command
 		$this->parser = new NativeArray();
 		
 		$this->openSocket($session);
