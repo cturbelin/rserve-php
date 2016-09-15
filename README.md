@@ -3,6 +3,11 @@ Rserve-php
 
 php5 client for Rserve http://www.rforge.net/Rserve/ (a TCP/IP server for R statistical software)
 
+NEW:
+-----
+New version of this project with new features, namespace is available on 2.0 branch of this project. It will be released soon.
+For a new project prefer this new branch. 
+
 Maturity
 -----------------------
 
