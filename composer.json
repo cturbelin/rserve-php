@@ -24,6 +24,9 @@
             "Sentiweb\\Rserve\\": "src/"
         }
      },
+     "autoload-dev": {
+        "psr-4" : { "Sentiweb\\Rserve\\" : "tests/" }
+     },
      "scripts": {
        "test": [
           "parallel-lint . --exclude vendor --exclude doc",
