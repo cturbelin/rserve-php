@@ -1,15 +1,14 @@
 <?php
 
-require_once __DIR__ . '/config.php';
-
 namespace Sentiweb\Rserve;
+
+require_once __DIR__ . '/config.php';
 
 class SessionTest extends \PHPUnit_Framework_TestCase {
 
-
 	public function testSession() {
     if(!defined("RSERVE_HOST")) {
-      this->markTestSkipped("rserve host not defined");
+      $this->markTestSkipped("rserve host not defined");
     }
 		$cnx = new Connection(RSERVE_HOST);
 

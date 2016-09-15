@@ -4,9 +4,9 @@
  * Refer to README for how to run this test
  */
 
-require_once __DIR__ . '/config.php';
-
 namespace Sentiweb\Rserve;
+
+require_once __DIR__ . '/config.php';
 
 class LoginTest extends \PHPUnit_Framework_TestCase {
 

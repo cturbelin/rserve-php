@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/config.php';
-
 namespace Sentiweb\Rserve;
 use Sentiweb\Rserve\Parser\REXP as Parser_REXP;
+
+require_once __DIR__ . '/config.php';
 
 class REXPTest extends \PHPUnit_Framework_TestCase {
 

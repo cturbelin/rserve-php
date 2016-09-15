@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/config.php';
-
 namespace Sentiweb\Rserve;
+
+require_once __DIR__ . '/config.php';
 
 class ParserNativeTest extends \PHPUnit_Framework_TestCase {
 
