@@ -28,7 +28,7 @@ class REXPTest extends \PHPUnit_Framework_TestCase {
 			array('Integer', array(1, 3, 7, 1129, 231923,22)),
 			array('Double', array(1.234, 3.432, 4.283, M_PI)),
 			array('Logical', array(TRUE, FALSE, TRUE, TRUE, FALSE, NULL)),
-			array('String', array('toto','Lorem ipsum dolor sit amet','')),
+			array('RString', array('toto','Lorem ipsum dolor sit amet','')),
 		);
 	}
 

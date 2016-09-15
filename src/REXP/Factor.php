@@ -36,7 +36,7 @@ class Factor extends Integer {
 	 * Set levels from
 	 */
 	public function setLevels($levels) {
-		if($levels instanceof String) {
+		if($levels instanceof RString) {
 			$levels = $levels->getValues();
 		}
 		$this->levels = $levels;
@@ -52,7 +52,7 @@ class Factor extends Integer {
 		foreach($this->values as $v) {
 			$r[] = $levels[$v];
 		}
-		$rexp = new String();
+		$rexp = new RString();
 		$rexp->setValues($r);
 		return $$rexp;
 	}

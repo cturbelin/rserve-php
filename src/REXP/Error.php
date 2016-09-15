@@ -9,6 +9,6 @@
  */
 namespace Sentiweb\Rserve\REXP;
 
-class Error extends String {
+class Error extends RString {
 	
 }
