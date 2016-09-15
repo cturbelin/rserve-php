@@ -19,26 +19,24 @@ You can run tests using phpunit
 
 Credential-free tests
 * launch your credential-free Rserve instance
-  . Can be done with
-
-      docker run -d -p 6311:6311 wnagele/rserve
+ * Can be done with `docker run -d -p 6311:6311 wnagele/rserve`
 
 * Create a file config.php in the "tests" directory (copy config.php.sample)
 * define the constant `RSERVE_HOST` with the address of your Rserve server
-  . port used is the default 6311
-  . custom port implemented but not supported in tests yet
+ * port used is the default 6311
+ * custom port implemented but not supported in tests yet
 * if installed with composer: `composer test`
 * otherwise, run with `phpunit` 
-  . phpunit tests/ParserNativeTest.php
-  . phpunit tests\SessionTest.php
-  . phpunit tests\REXPTest.php
+ * phpunit tests/ParserNativeTest.php
+ * phpunit tests\SessionTest.php
+ * phpunit tests\REXPTest.php
 
 
 Login tests:
 * launch your credential-protected Rserve instance
 * define the constants `RSERVE_PORT, RSERVE_USER, RSERVE_PASS` in config.php (along with `RSERVE_HOST`)
 * run test
-  . phpunit tests\LoginTest.php
+ * `phpunit tests\LoginTest.php`
 
 
 Usage
