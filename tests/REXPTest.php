@@ -2,11 +2,10 @@
 
 require_once __DIR__ . '/config.php';
 
-use Sentiweb\Rserve\Connection;
-use Sentiweb\Rserve\Serializer;
+namespace Sentiweb\Rserve;
 use Sentiweb\Rserve\Parser\REXP as Parser_REXP;
 
-class REXPTest extends PHPUnit_Framework_TestCase {
+class REXPTest extends \PHPUnit_Framework_TestCase {
 
 
 	private function create_REXP($values, $type, $options=array()) {

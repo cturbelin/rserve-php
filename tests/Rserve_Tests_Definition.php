@@ -1,4 +1,7 @@
 <?php
+
+namespace Sentiweb\Rserve;
+
 /**
 * Tests Definition
 */

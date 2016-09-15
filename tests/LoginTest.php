@@ -6,19 +6,23 @@
 
 require_once __DIR__ . '/config.php';
 
-use Sentiweb\Rserve\Connection;
+namespace Sentiweb\Rserve;
 
-class LoginTest extends PHPUnit_Framework_TestCase {
+class LoginTest extends \PHPUnit_Framework_TestCase {
 
 	public function testLogin() {
 		
 		if(!(defined('RSERVE_USER') && defined('RSERVE_PASS')) ) {
 			$this->markTestSkipped('login configuration not defined.');
-			return;
 		}
 
 		$params = array('username'=>RSERVE_USER,'password'=>RSERVE_PASS);
 		
+		if(!(defined('RSERVE_HOST') && defined('RSERVE_PORT')) ) {
+			$this->markTestSkipped('rserve host/port configuration not defined.');
+			return;
+		}
+
 		$cnx = new Connection(RSERVE_HOST, RSERVE_PORT, $params);
 
 		// random id
