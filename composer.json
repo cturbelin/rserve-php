@@ -14,10 +14,20 @@
     "require": {
         "php": ">=5.2.0"
     },
+    "require-dev": {
+       "phpunit/phpunit": "*",
+       "jakub-onderka/php-parallel-lint": "^0.9"
+    }, 
     "autoload": {
         "files": ["src/lib/helpers.php"],
         "psr-4": {
             "Sentiweb\\Rserve\\": "src/"
         }
-    }
+     },
+     "scripts": {
+       "test": [
+          "parallel-lint . --exclude vendor --exclude doc",
+          "phpunit --verbose"
+       ]
+     } 
 }

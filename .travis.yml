@@ -1,0 +1,20 @@
+sudo: required
+
+services:
+- docker
+
+language: php
+
+php:
+- 7
+
+before_install:
+- composer install
+- cp tests/config.php.sample tests/config.php
+- docker run -d -p 6311:6311 wnagele/rserve
+
+script:
+- composer test
+
+after_success:
+- docker ps|grep rserve|awk '{print "docker stop " $1}'|bash
