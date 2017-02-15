@@ -1,23 +1,28 @@
 {
-    "name": "cturbelin/rserve-php",
-    "type": "library",
-    "description": "Rserve client library for PHP",
-    "keywords": ["R","Rserve","Stats"],
-    "homepage": "https://github.com/cturbelin/rserve-php",
-    "licence": "LGPL-2.1",
-    "authors": [
-        {
-            "name": "ClÃ©ment Turbelin",
-            "email": "clement.turbelin@gmail.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.2.0"
-    },
-    "autoload": {
-        "files": ["src/lib/helpers.php"],
-        "psr-4": {
-            "Sentiweb\\Rserve\\": "src/"
-        }
-    }
+	"name" : "cturbelin/rserve-php",
+	"type" : "library",
+	"description" : "Rserve client library for PHP",
+	"keywords" : [
+		"R",
+		"Rserve",
+		"Stats"
+	],
+	"homepage" : "https://github.com/cturbelin/rserve-php",
+	"licence" : "LGPL-2.1",
+	"authors" : [{
+			"name" : "Clément Turbelin",
+			"email" : "clement.turbelin@gmail.com"
+		}
+	],
+	"require" : {
+		"php" : ">=5.2.0"
+	},
+	"autoload" : {
+		"files" : [
+			"src/lib/helpers.php"
+		],
+		"psr-4" : {
+			"Sentiweb\\Rserve\\" : "src/"
+		}
+	}
 }
