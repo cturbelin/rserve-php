@@ -1,13 +1,15 @@
 <?php
 
+namespace Sentiweb\Rserve;
+
 require_once __DIR__ . '/config.php';
 
-use Sentiweb\Rserve\Connection;
-
-class SessionTest extends PHPUnit_Framework_TestCase {
-
+class SessionTest extends \PHPUnit_Framework_TestCase {
 
 	public function testSession() {
+    if(!defined("RSERVE_HOST")) {
+      $this->markTestSkipped("rserve host not defined");
+    }
 		$cnx = new Connection(RSERVE_HOST);
 
 		// random id

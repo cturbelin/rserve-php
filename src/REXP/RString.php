@@ -15,7 +15,7 @@ use Sentiweb\Rserve\Parser;
 /**
 * R character vector
 */
-class String extends Vector {
+class RString extends Vector {
 
 	public function isString() { 
 		return true; 

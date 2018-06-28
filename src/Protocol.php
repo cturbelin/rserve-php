@@ -12,13 +12,13 @@ class Protocol {
 	/** xpression type: double */
 	const XT_DOUBLE = 2;
 	
-	/** xpression type: String */
+	/** xpression type: RString */
 	const XT_STR = 3;
 	
 	/** xpression type: language construct (currently content is same as list) */
 	const XT_LANG = 4;
 	
-	/** xpression type: symbol (content is symbol name: String) */
+	/** xpression type: symbol (content is symbol name: RString) */
 	const XT_SYM = 5;
 	
 	/** xpression type: RBool */
@@ -67,7 +67,7 @@ class Protocol {
 	/** xpression type: double[] */
 	const XT_ARRAY_DOUBLE = 33;
 	
-	/** xpression type: String[] (currently not used, Vector is used instead) */
+	/** xpression type: RString[] (currently not used, Vector is used instead) */
 	const XT_ARRAY_STR = 34;
 	
 	/** internal use only! this constant should never appear in a REXP */

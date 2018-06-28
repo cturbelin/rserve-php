@@ -1,11 +1,10 @@
 <?php
 
+namespace Sentiweb\Rserve;
+
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/Definition.php';
 
-use Sentiweb\Rserve\Connection;
-
-class ParserNativeTest extends PHPUnit_Framework_TestCase {
+class ParserNativeTest extends \PHPUnit_Framework_TestCase {
 
 	private static $cnx;
 

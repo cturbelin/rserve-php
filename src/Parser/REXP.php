@@ -14,7 +14,7 @@ use Sentiweb\Rserve\REXP\Language;
 use Sentiweb\Rserve\REXP\Logical;
 use Sentiweb\Rserve\REXP\RNull;
 use Sentiweb\Rserve\REXP\Raw;
-use Sentiweb\Rserve\REXP\String;
+use Sentiweb\Rserve\REXP\RString;
 use Sentiweb\Rserve\REXP\Symbol;
 use Sentiweb\Rserve\REXP\Unknown;
 use Sentiweb\Rserve\REXP\Dataframe;
@@ -145,7 +145,7 @@ class REXP extends Parser {
 				if($class && in_array('try-error', $class)) {
 					$a = new Error();
 				} else {
-					$a = new String();
+					$a = new RString();
 				}
 				$a->setValues( $v );
 				break;

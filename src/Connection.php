@@ -116,7 +116,7 @@ class Connection {
 	}
 
 	/**
-	 *  @param mixed host or a Rserve_Session instance or an array of parameters
+	 *  @param mixed host or a Session instance or an array of parameters
 	 *  @param int $port if 0 then host is interpreted as unix socket,
 	 *  @param array params
 	 *  
@@ -136,7 +136,7 @@ class Connection {
 			$this->host = isset($params['host']) ? $params['host'] : self::DEFAULT_HOST;
 			$this->port = isset($params['port']) ? $params['port'] : self::DEFAULT_PORT;
 			
- 		} elseif(is_object($host) AND $host instanceof Rserve_Session) {
+ 		} elseif(is_object($host) AND $host instanceof Session) {
 			$session = $host->key;
 			$this->port = $host->port;
 			$host = $host->host;
@@ -166,6 +166,7 @@ class Connection {
 	 * @return resource socket
 	 */
 	private function openSocket($session_key = null) {
+
 		if( $this->port == 0 ) {
 			$socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 		} else {
@@ -175,6 +176,7 @@ class Connection {
 			throw new Exception('Unable to create socket ['.socket_strerror(socket_last_error()).']');
 		}
 		//socket_set_option($socket, SOL_TCP, SO_DEBUG,2);
+
 		$ok = socket_connect($socket, $this->host, $this->port);
 		if( !$ok ) {
 			throw new Exception('Unable to connect ['.socket_strerror(socket_last_error()).']');
