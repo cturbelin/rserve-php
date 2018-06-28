@@ -50,7 +50,7 @@ class Factor extends Integer {
 		$levels = $this->levels;
 		$r = array();
 		foreach($this->values as $v) {
-			$r[] = $levels[$v];
+			$r[] = $v >= 0 ? $levels[$v] : null; 
 		}
 		$rexp = new RString();
 		$rexp->setValues($r);

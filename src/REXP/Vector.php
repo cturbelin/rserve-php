@@ -14,7 +14,7 @@ use Sentiweb\Rserve\REXP;
 use Sentiweb\Rserve\Parser;
 
 /**
-* R Double vector
+* R Vector
 */
 class Vector extends REXP {
 	

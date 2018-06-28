@@ -117,24 +117,40 @@ class NativeArray extends Parser {
 					$a[] = _rserve_int32($r, $i);
 					$i += 4;
 				}
-				if (count($a) == 1) {
+				$n = count($a);
+				if ($n == 1) {
 					$a = $a[0];
 				}
+				
 				// If factor, then transform to characters
-				if( $this->factor_as_string  and isset($attr['class']) ) {
+				if( $this->factor_as_string  && isset($attr['class']) ) {
 					$c = $attr['class'];
 					$is_factor = is_string($c) && ($c == 'factor');
 					if($is_factor) {
-						$n = count($a);
 						$levels = $attr['levels'];
-						for($k = 0; $k < $n; ++$k) {
-							$i = $a[$k];
-							if($i < 0) {
-								$a[$k] = null;
+						if($n == 1) {
+							if($a < 0) {
+								$a = null;
 							} else {
-								$a[$k] = $levels[ $i -1];
+                                if (is_array($levels)) {
+                                    $a = $levels[ $a ];
+                                } else {
+                                    // Only one levels & current value is first level, ok
+                                    if ($a == 1) {
+                                        $a = $levels;
+                                    }
+                                }
+                            }
+						} else {
+							for ($k = 0; $k < $n; ++$k) {
+								$i = $a[$k];
+								if ($i < 0) {
+									$a[$k] = null;
+								} else {
+									$a[$k] = $levels[ $i -1];
+								}
 							}
-						}
+                        }	
 					}
 				}
 				break;
