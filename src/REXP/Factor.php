@@ -54,7 +54,7 @@ class Factor extends Integer {
 		}
 		$rexp = new RString();
 		$rexp->setValues($r);
-		return $$rexp;
+		return $rexp;
 	}
 
 	public function getType() {
