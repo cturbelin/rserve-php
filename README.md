@@ -7,9 +7,9 @@ php5 client for Rserve http://www.rforge.net/Rserve/ (a TCP/IP server for R stat
 
 Changes from 1.0 version
 ---
-- All classes are declared under Sentiweb\Rserve namespace allowin PSR-4 autoloading
-- Parser are now individualized into classes
-- Parser instance should be directly used as second argument of evalString() to use another parser than default (see example)
+- All classes are declared under Sentiweb\Rserve namespace allowing PSR-4 autoloading
+- Parsers are now individualized into classes
+- A Parser instance can be directly used as second argument of evalString() to replace default parser (see example)
 
 Tests
 -----
@@ -39,7 +39,7 @@ Login tests:
  * `phpunit tests\LoginTest.php`
 
 
-Usage
+Installation
 ---------
 
 Using without composer :
@@ -50,7 +50,6 @@ Using with composer:
 * add `require __DIR__.'/../vendor/autoload.php';` to your project
 
 Some usage example are provided in [example](example) directory
-
 
 Using Login Authorization
 -------------------------
@@ -65,18 +64,18 @@ Parsers
 Results provided by R could be handled using several parsers
 
  - NativeArray
- 	Translate R structure into php simple arrays. It is useful to get simple values from R
+ 	Translates R structure into php simple arrays. It is useful to get simple values from R
  	
  - Wrapped array
    Using NativeArray with parameters `array("wrapper"=>true)` in contructor return object
    with attributes of R objects.
-   The result object is used as an array and also provides methods to access attributes()
+   The result object can be used as an array and provides methods to access R object attributes
    
  - Debug
-   Translate R response to structure useful for debugging 	
+   Translates R response to structure useful for debugging 	
 
  - REXP
-   Translate R response into REXP classes
+   Translates R response into REXP classes
 
 
 Async Mode
@@ -91,6 +90,6 @@ Several functions allow to use connection in async mode
 
 Contacts
 --------
-* Clément Turbelin, clement.turbelin@gmail.com
-* http://www.sentiweb.fr
-* Université Pierre et Marie Curie - Paris 6, France
+Clément Turbelin, clement.turbelin@gmail.com
+http://www.sentiweb.fr
+Université Pierre et Marie Curie - Paris 6, France
