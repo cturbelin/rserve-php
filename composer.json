@@ -12,7 +12,7 @@
         }
     ],
     "require": {
-        "php": ">=5.2.0"
+        "php": ">=7.4"
     },
     "require-dev": {
        "phpunit/phpunit": "*",
@@ -32,6 +32,6 @@
           "parallel-lint . --exclude vendor --exclude doc",
           "phpunit --verbose"
        ]
-     } 
+    } 
 }
 

@@ -230,7 +230,7 @@ class NativeArray extends Parser {
 		} // end switch
 	
 		if( $this->use_wrapper ) {
-			if( is_array($a) & $attr) {
+			if( is_array($a) && $attr) {
 				return new ArrayWrapper($a, $attr, $ra);
 			} else {
 				return $a;
