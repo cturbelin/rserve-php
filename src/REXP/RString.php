@@ -17,7 +17,7 @@ use Sentiweb\Rserve\Parser;
 */
 class RString extends Vector {
 
-	public function isString() { 
+	public function isString():bool { 
 		return true; 
 	}
 	

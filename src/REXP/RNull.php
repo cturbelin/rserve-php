@@ -19,11 +19,11 @@ use Sentiweb\Rserve\Parser;
 */
 class RNull extends REXP {
 
-	public function isList() {
+	public function isList():bool {
 		return true;
 	}
 
-	public function isNull() {
+	public function isNull():bool {
 		return true;
 	}
 

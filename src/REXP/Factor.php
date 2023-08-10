@@ -20,7 +20,7 @@ class Factor extends Integer {
 
 	protected $levels;
 
-	public function isFactor() {
+	public function isFactor():bool {
 		return true;
 	}
 
@@ -44,11 +44,11 @@ class Factor extends Integer {
 
 	/**
 	 * Convert an levels encoded vector to a character vector
-	 * @return Rserve_REXP
+	 * @return REXP
 	 */
-	public function asCharacter() {
+	public function asCharacter(): REXP {
 		$levels = $this->levels;
-		$r = array();
+		$r = [];
 		foreach($this->values as $v) {
 			$r[] = $v >= 0 ? $levels[$v] : null; 
 		}
@@ -63,6 +63,9 @@ class Factor extends Integer {
 
 	public function setAttributes(RList $attr) {
 		parent::setAttributes($attr);
+		/**
+		 * @var Vector|null
+		 */
 		$lev = $this->getAttribute('levels');
 		if( $lev ) {
 			$lev = $lev->getValues();
@@ -70,7 +73,7 @@ class Factor extends Integer {
 			$i = 0;
 			foreach($lev as $l) {
 				++$i;
-				$levels[$i] =(string)$l; // force string for convinience
+				$levels[$i] =(string)$l; // force string for convenience
 			}
 			$this->levels = $levels;
 		}

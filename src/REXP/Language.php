@@ -18,7 +18,7 @@ use Sentiweb\Rserve\REXP\RList;
 */
 class Language extends RList {
 
-	public function isLanguage() {
+	public function isLanguage():bool {
 		return true;
 	}
 

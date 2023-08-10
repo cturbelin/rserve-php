@@ -89,15 +89,19 @@ class Connection {
 	private $auth_request;
 	private $auth_method;
 
-	private $debug;
+	private bool $debug;
 
-	private $ascync;
+	private bool $async;
+
+	private ?string $username;
+
+	private ?string $password;
 	
 	/**
 	 * Encoding to use
 	 * @var string
 	 */
-	private $encoding;
+	private ?string $encoding;
 
 	// Internal parser, used as default parser 
 	// To handle internal operations
@@ -126,15 +130,15 @@ class Connection {
 	 *  If
 	 *
 	 */
-	public function __construct($host=self::DEFAULT_HOST, $port = self::DEFAULT_PORT, $params=array()) {
+	public function __construct($host=self::DEFAULT_HOST, $port = self::DEFAULT_PORT, $params=[]) {
 		if( !self::$init ) {
 			self::init();
 		}
 		
 		if( is_array($host) ) {
 			$params = $host;
-			$this->host = isset($params['host']) ? $params['host'] : self::DEFAULT_HOST;
-			$this->port = isset($params['port']) ? $params['port'] : self::DEFAULT_PORT;
+			$this->host =  $params['host'] ?? self::DEFAULT_HOST;
+			$this->port =  $params['port'] ?? self::DEFAULT_PORT;
 			
  		} elseif(is_object($host) AND $host instanceof Session) {
 			$session = $host->key;
@@ -149,11 +153,11 @@ class Connection {
 			$this->port = $port;
 			$session = null;
 		}
-		$this->debug = isset($params['debug']) ? (bool)$params['debug'] : false;
-		$this->async = isset($params['async']) ? (bool)$params['async'] : false;
-		$this->username = isset($params['username']) ? $params['username'] : false;
-		$this->password = isset($params['password']) ? $params['password'] : false;
-		$this->encoding = isset($params['encoding']) ? $params['encoding'] : false;
+		$this->debug =  (bool)($params['debug'] ?? false);
+		$this->async = (bool)($params['async'] ?? false);
+		$this->username =  $params['username'] ?? null;
+		$this->password = $params['password'] ?? null;
+		$this->encoding = $params['encoding'] ?? null;
 		
 		// Internal parser used for basic command
 		$this->parser = new NativeArray();
@@ -232,12 +236,11 @@ class Connection {
 	}
 
 	/**
-	 * Allow accces to socket
+	 * Allow access to socket
 	 */
 	public function getSocket() {
 		return $this->socket;
 	}
-
 
 	/**
 	 * Set Asynchronous mode
@@ -318,7 +321,6 @@ class Connection {
 		throw new Exception('unable to evaluate', $r);
 	}
 
-
 	/**
 	 * Detach the current session from the current connection.
 	 * Save envirnoment could be attached to another R connection later
@@ -345,7 +347,7 @@ class Connection {
 	/**
 	 * Assign a value to a symbol in R
 	 * @param string $symbol name of the variable to set (should be compliant with R syntax !)
-	 * @param Rserve_REXP $value value to set
+	 * @param REXP $value value to set
 	 */
 	public function assign($symbol, REXP $value) {
 		$symbol = (string)$symbol;

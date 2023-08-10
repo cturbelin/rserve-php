@@ -18,12 +18,12 @@ class ArrayWrapper implements \ArrayAccess
 	/**
 	 * @var array data = R values
 	 */
-	private $data = array();
+	private $data = [];
 
 	/**
 	 * @var array R Attributes for this structure
 	 */
-	private $attr = array();
+	private $attr = [];
 
 	/**
 	 * Parsed expression type
@@ -34,7 +34,7 @@ class ArrayWrapper implements \ArrayAccess
 	/**
 	 *
 	 * @param $data values
-	 * @param Rserve_RNative $attributes
+	 * @param [] $attributes
 	 * @param int $exp_type expression type
 	 */
 	public function __construct($data, $attributes = null, $exp_type = null)
@@ -50,7 +50,7 @@ class ArrayWrapper implements \ArrayAccess
 	 */
 	public function getAttr($name)
 	{
-		return isset($this->attr[$name]) ? $this->attr[$name] : null;
+		return $this->attr[$name] ?? null;
 	}
 
 	/**
@@ -59,7 +59,7 @@ class ArrayWrapper implements \ArrayAccess
 	 */
 	public function hasAttr($name)
 	{
-		return isset($this->attr[$name]) ? true : false;
+		return isset($this->attr[$name]);
 	}
 
 	/**
@@ -72,7 +72,6 @@ class ArrayWrapper implements \ArrayAccess
 
 	/**
 	 * Get the attributes
-	 * @return Rserve_RNative
 	 */
 	public function getAttributes()
 	{
@@ -98,6 +97,6 @@ class ArrayWrapper implements \ArrayAccess
 
 	public function offsetGet($offset)
 	{
-		return isset($this->data[$offset]) ? $this->data[$offset] : null;
+		return $this->data[$offset] ?? null;
 	}
 }

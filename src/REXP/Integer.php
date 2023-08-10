@@ -17,11 +17,11 @@ use Sentiweb\Rserve\Parser;
 */
 class Integer extends Vector {
 
-	public function isInteger() {
+	public function isInteger():bool {
 		return true;
 	}
 
-	public function isNumeric() {
+	public function isNumeric():bool {
 		return true;
 	}
 

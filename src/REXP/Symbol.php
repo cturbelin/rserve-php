@@ -27,7 +27,7 @@ class Symbol extends REXP {
 		return $this->name;
 	}
 
-	public function isSymbol() { 
+	public function isSymbol():bool { 
 		return true; 
 	}
 
@@ -43,7 +43,7 @@ class Symbol extends REXP {
 		return $this->name;
 	}
 
-	public function length() {
+	public function length():int {
 		return 1;
 	}
 

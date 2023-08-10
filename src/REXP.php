@@ -18,6 +18,7 @@ namespace Sentiweb\Rserve;
 */
 
 use Sentiweb\Rserve\REXP\RList;
+use Sentiweb\Rserve\REXP\Vector;
 
 class REXP {
 
@@ -43,7 +44,7 @@ class REXP {
 	 * @param REXP $name
 	 * @return bool
 	 */
-	public function hasAttribute($name) {
+	public function hasAttribute($name):bool {
 		if( !$this->attr ) {
 			return false;
 		}
@@ -64,7 +65,7 @@ class REXP {
 
 	/**
 	 * get attributes for this REXP
-	 * @return RList
+	 * @return RList|null
 	 */
 	public function attributes() {
 		return $this->attr;
@@ -74,7 +75,7 @@ class REXP {
 	 * Is a vector (list of indexed values whatever it's type)
 	 * @return bool
 	 */
-	public function isVector() {
+	public function isVector():bool {
 		return false;
 	}
 
@@ -82,7 +83,7 @@ class REXP {
 	 * Is an Integer vector
 	 * @return bool
 	 */
-	public function isInteger() {
+	public function isInteger():bool {
 			return false;
 	}
 
@@ -90,7 +91,7 @@ class REXP {
 	 * Is a numeric vector (Double)
 	 * @return bool
 	 */
-	public function isNumeric() {
+	public function isNumeric():bool {
 		return false;
 	}
 
@@ -98,7 +99,7 @@ class REXP {
 	 * Is a logical vector
 	 * @return bool
 	 */
-	public function isLogical() {
+	public function isLogical():bool {
 		 return false;
 	}
 
@@ -106,7 +107,7 @@ class REXP {
 	 * Is a string vector
 	 * @return bool
 	 */
-	public function isString() {
+	public function isString():bool {
 		return false;
 	}
 
@@ -114,7 +115,7 @@ class REXP {
 	 * Is a symbol vector
 	 * @return bool
 	 */
-	public function isSymbol() {
+	public function isSymbol():bool {
 		return false;
 	}
 
@@ -122,7 +123,7 @@ class REXP {
 	 * Is a raw vector (binary)
 	 * @return bool
 	 */
-	public function isRaw() {
+	public function isRaw():bool {
 		return false;
 	}
 
@@ -130,7 +131,7 @@ class REXP {
 	 * Is a list (Rserve_Rexp_List)
 	 * @return bool
 	 */
-	public function isList() {
+	public function isList():bool {
 		return false;
 	}
 
@@ -138,7 +139,7 @@ class REXP {
 	 * Is a null value
 	 * @return bool
 	 */
-	public function isNull() {
+	public function isNull():bool {
 		return false;
 	}
 
@@ -146,7 +147,7 @@ class REXP {
 	 * Is a language expression
 	 * @return bool
 	 */
-	public function isLanguage() {
+	public function isLanguage():bool {
 		return false;
 	}
 
@@ -154,7 +155,7 @@ class REXP {
 	 * Is a factor vector
 	 * @return bool
 	 */
-	public function isFactor() {
+	public function isFactor():bool {
 		return false;
 	}
 
@@ -162,7 +163,7 @@ class REXP {
 	 * Is an expression
 	 * @return bool
 	 */
-	public function isExpression() {
+	public function isExpression():bool {
 		return false;
 	}
 
@@ -170,7 +171,7 @@ class REXP {
 	 * object content's length
 	 * @return int
 	 */
-	public function length() {
+	public function length():int {
 		return 0;
 	}
 
@@ -178,26 +179,29 @@ class REXP {
 	 * Return R class
 	 * @return string
 	 */
-	public function getClass() {
+	public function getClass():string {
 		$class = $this->getAttribute('class');
 		if($class) {
+			if(!$class instanceof Vector) {
+				throw new Exception("Class attribute must be a vector");
+			}
 			return $class->getValues();
 		}
 		$type = $this->getType();
 		switch($type) {
-			case Rserve_Parser::XT_ARRAY_BOOL:
+			case Parser::XT_ARRAY_BOOL:
 				$class = 'logical';
 				break;
-			case Rserve_Parser::XT_ARRAY_INT:
+			case Parser::XT_ARRAY_INT:
 				$class = 'integer';
 				break;
-			case Rserve_Parser::XT_ARRAY_DOUBLE:
+			case Parser::XT_ARRAY_DOUBLE:
 				$class = 'numeric';
 				break;
-			case Rserve_Parser::XT_ARRAY_STR:
+			case Parser::XT_ARRAY_STR:
 				$class ='character';
 				break;
-			case Rserve_Parser::XT_FACTOR:
+			case Parser::XT_FACTOR:
 				$class = 'factor';
 				break;
 			default:
@@ -211,7 +215,7 @@ class REXP {
 	 * For debugging purpose
 	 */
 	public function toHTML() {
-		return '<div class="rexp xt_'.$this->getType().'"><span class="typename">'.Rserve_Parser::xtName($this->getType()).'</span>'.$this->attrToHTML().'</div>';
+		return '<div class="rexp xt_'.$this->getType().'"><span class="typename">'.Parser::xtName($this->getType()).'</span>'.$this->attrToHTML().'</div>';
 	}
 
 	protected function attrToHTML() {
@@ -225,7 +229,7 @@ class REXP {
 	 * @return int
 	 */
 	public function getType() {
-		return Rserve_Parser::XT_VECTOR;
+		return Parser::XT_VECTOR;
 	}
 
 }

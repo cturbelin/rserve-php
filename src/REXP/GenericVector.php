@@ -17,7 +17,7 @@ use Sentiweb\Rserve\Parser;
 */
 class GenericVector extends Vector {
 
-	public function isList() {
+	public function isList():bool {
 		return true;
 	}
 

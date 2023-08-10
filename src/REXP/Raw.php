@@ -23,7 +23,7 @@ class Raw extends REXP {
 	/**
 	 * return int
 	 */
-	public function length() {
+	public function length():int {
 		return strlen($this->value);
 	}
 	
@@ -35,8 +35,8 @@ class Raw extends REXP {
 		return $this->value;
 	}
 	
-	public function  isRaw() { 
-		return TRUE; 
+	public function  isRaw():bool { 
+		return true; 
 	}
 	
 	public function getType() {

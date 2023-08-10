@@ -7,7 +7,7 @@ use Sentiweb\Rserve\REXP\RNull;
 use Sentiweb\Rserve\REXP\Symbol;
 
 /**
- * Serialize REXP object to binary protocol reprensentation 
+ * Serialize REXP object to binary protocol representation 
  * sendable to Rserve
  * 
  * @author Clément Turbelin
@@ -15,8 +15,8 @@ use Sentiweb\Rserve\REXP\Symbol;
 class Serializer extends Protocol {
 	/**
 	 *
-	 * @param Rserve_REXP $value
-	 * This function is not functionnal. Please use it only for testing
+	 * @param $value
+	 * This function is not functional. Please use it only for testing
 	 */
 	public function serialize(REXP $value) {
 		// Current offset

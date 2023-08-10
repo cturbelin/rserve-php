@@ -18,7 +18,7 @@ use \Exception;
  */
 class RList extends Vector implements \ArrayAccess {
 
-	protected $names = array();
+	protected $names = [];
 	protected $is_named = false;
 
 	public function setValues($values, $getNames = false) {
@@ -35,13 +35,13 @@ class RList extends Vector implements \ArrayAccess {
 
 	/**
 	 * Set names
-	 * @param unknown_type $names
+	 * @param array $names
 	 */
-	public function setNames($names) {
+	public function setNames(array $names) {
 		if(count($this->values) != count($names)) {
 			throw new \LengthException('Invalid names length');
 		}
-		$nn = array();
+		$nn = [];
 		foreach($names as $n) {
 			$nn[] = (string)$n;
 		}
@@ -54,21 +54,21 @@ class RList extends Vector implements \ArrayAccess {
 	 * @return array
 	 */
 	public function getNames() {
-		return ($this->is_named) ? $this->names : array();
+		return ($this->is_named) ? $this->names : [];
 	}
 
 	/**
 	 * return true if the list is named
 	 * @return bool
 	 */
-	public function isNamed() {
+	public function isNamed():bool {
 		return $this->is_named;
 	}
 
 	/**
 	 * Get the value for a given name entry, if list is not named, get the indexed element
 	 * @param string $name
-	 * @return Rserve_REXP|mixed
+	 * @return REXP|mixed
 	 */
 	public function at($name) {
 		if( $this->is_named ) {
@@ -94,11 +94,11 @@ class RList extends Vector implements \ArrayAccess {
 		return $this->values[$i];
 	}
 
-	public function isList() { 
+	public function isList():bool { 
 		return true; 
 	}
 
-	public function offsetExists($offset) {
+	public function offsetExists($offset):bool {
 		if($this->is_named) {
 			return array_search($offset, $this->names) >= 0;
 		} else {
@@ -110,11 +110,11 @@ class RList extends Vector implements \ArrayAccess {
 		return $this->at($offset);
 	}
 
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value):void {
 		throw new Exception('assign not implemented');
 	}
 
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset):void {
 		throw new Exception('unset not implemented');
 	}
 

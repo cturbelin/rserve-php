@@ -14,7 +14,7 @@ use Sentiweb\Rserve\Parser;
 
 class Expression extends GenericVector {
 	
-	public function isExpression() { 
+	public function isExpression():bool { 
 		return true; 
 	}
 	

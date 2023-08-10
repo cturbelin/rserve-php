@@ -21,7 +21,7 @@ class Double extends Vector {
 	 * (non-PHPdoc)
 	 * @see Rserve_REXP::isInteger()
 	 */
-	public function isInteger() { 
+	public function isInteger():bool { 
 		return false; 
 	}
 	
@@ -29,7 +29,7 @@ class Double extends Vector {
 	 * (non-PHPdoc)
 	 * @see Rserve_REXP::isNumeric()
 	 */
-	public function isNumeric() { 
+	public function isNumeric():bool { 
 		return true; 
 	}
 	

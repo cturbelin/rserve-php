@@ -18,15 +18,15 @@ use Sentiweb\Rserve\Parser;
 */
 class Logical extends Vector {
 	
-	public function isInteger() { 
+	public function isInteger():bool { 
 		return true; 
 	}
 	
-	public function isNumeric() { 
+	public function isNumeric():bool { 
 		return true; 
 	}
 	
-	public function isLogical() { 
+	public function isLogical():bool { 
 		return true; 
 	}
 	

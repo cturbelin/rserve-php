@@ -9,7 +9,6 @@ namespace Sentiweb\Rserve\REXP;
  */
 class Complex extends Vector {
 
-
 	protected function getCplx($index, $part) {
 		if( !is_null($index) ) {
 			$v = $this->at($index);

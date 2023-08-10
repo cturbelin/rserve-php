@@ -18,20 +18,20 @@ use Sentiweb\Rserve\Parser;
 */
 class Vector extends REXP {
 	
-	protected $values;
+	protected array $values;
 	
 	public function __construct() {
-		$this->values = array();
+		$this->values = [];
 	}
 	
 	/**
 	 * return int
 	 */
-	public function length() {
+	public function length():int {
 		return( count($this->values) );
 	}
 	
-	public function isVector() {
+	public function isVector():bool {
 		return true;
 	}
 	
@@ -48,6 +48,9 @@ class Vector extends REXP {
 	 * uses 'dim' attribute if exists or the length of the vector (one dimension vector)
 	 */
 	public function dim() {
+		/**
+		 * @var Vector
+		 */
 		$dim = $this->getAttribute('dim');
 		if( $dim ) {
 			return $dim->getValues();
@@ -68,7 +71,7 @@ class Vector extends REXP {
 	 * @param unknown_type $index
 	 */
 	public function at($index) {
-		return isset($this->values[$index]) ? $this->values[$index] : null;
+		return $this->values[$index] ?? null;
 	}
 	
 	public function getType() {

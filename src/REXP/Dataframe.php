@@ -11,6 +11,9 @@ class Dataframe extends Vector {
 	 * @return array()
 	 */
 	public function getNames() {
+		/**
+		 * @var Vector
+		 */
 		$n =  $this->getAttribute('names');
 		if($n) {
 			return $n->getValues();
@@ -23,6 +26,9 @@ class Dataframe extends Vector {
 	 * @return array()
 	 */
 	public function getRowNames() {
+		/**
+		 * @var Vector
+		 */
 		$n  = $this->getAttribute('row.names');
 		if($n) {
 			return $n->getValues();
