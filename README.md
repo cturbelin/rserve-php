@@ -16,28 +16,26 @@ Tests
 
 You can run tests using phpunit
 
+Several tests need to have a running Rserve server (not handled by this library).
+To configure the test to use a server you have to configure the connection using environment vars or by creating a file in tests/config.php and defining constants (a sample file is available in tests/config.php.sample).
+Expected vars (in env or as constant in tests/config.php)
+- `RSERVE_HOST` : hostname or IP of the Rserve server (e.g. 'localhost' or 127.0.0.1 for local server).
+- `RSERVE_PORT` : port number, if value is '0' or 'unix', the HOST is expected to be a unix socket path.
+- `RSERVE_USER` : username if the Rserve server is expecting authentication, skip or leave empty if not
+- `RSERVE_PASS` : password if the Rserve server is expecting authentication, skip or leave empty if not
+
+`RSERVE_HOST` is required to be  defined (either env or in config.php) to run the connection aware tests, if not these tests will be skipped. 
 
 Credential-free tests
 * launch your credential-free Rserve instance
  * Can be done with `docker run -d -p 6311:6311 wnagele/rserve`
 
-* Create a file config.php in the "tests" directory (copy config.php.sample)
-* define the constant `RSERVE_HOST` with the address of your Rserve server
- * port used is the default 6311
- * custom port implemented but not supported in tests yet
 * if installed with composer: `composer test`
 * otherwise, run with `phpunit` 
- * phpunit tests/ParserNativeTest.php
- * phpunit tests\SessionTest.php
- * phpunit tests\REXPTest.php
-
 
 Login tests:
-* launch your credential-protected Rserve instance
-* define the constants `RSERVE_PORT, RSERVE_USER, RSERVE_PASS` in config.php (along with `RSERVE_HOST`)
-* run test
- * `phpunit tests\LoginTest.php`
-
+This test suite require a credential-protected Rserve instance to be running (not provided by this library)
+and the credentials (username and password to be configured as described above)
 
 Installation
 ---------
@@ -55,7 +53,7 @@ Using Login Authorization
 -------------------------
 Usage is the same as the vanilla usage, except for the constructor
 ```php
-   $cnx = new \Sentiweb\Rserve\Connection('myserverhost', serverport, array('username'=>username,'password'=>password))
+   $cnx = new \Sentiweb\Rserve\Connection('myserverhost', 6311, ['username'=>username,'password'=>password])
 ```
 
 Parsers
@@ -86,10 +84,3 @@ Several functions allow to use connection in async mode
 * getSocket() to get the socket an set some options
 * setAsync() allow to set the async mode
 * getResults($parser) : get and parse the results after a call to evalString() in async mode
-
-
-Contacts
---------
-Clément Turbelin, clement.turbelin@gmail.com
-http://www.sentiweb.fr
-Université Pierre et Marie Curie - Paris 6, France
