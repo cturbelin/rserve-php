@@ -1,11 +1,16 @@
 <?php
 
-namespace Sentiweb\Rserve;
+namespace Sentiweb\Rserve\Tests;
 
 /**
 * Tests Definition
 */
-class Rserve_Tests_Definition {
+class Definition {
+
+	const TYPE_BOOL = 'bool';
+	const TYPE_INT = 'int';
+	const TYPE_FLOAT = 'float';
+	const TYPE_STRING = 'string';
 
 	/**
 	 * array of tests cases
@@ -16,19 +21,19 @@ class Rserve_Tests_Definition {
 	 */
 	public static $native_tests = array(
 		// logical value
-		array('TRUE', 'bool', TRUE),
+		array('TRUE', self::TYPE_BOOL, TRUE),
 		// logical vector
-		array('c(T,F,T,F,T,F,F)', 'bool', array(TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,FALSE)),
+		array('c(T,F,T,F,T,F,F)', self::TYPE_BOOL, array(TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,FALSE)),
 		// integer value
-		array('as.integer(12345)', 'int', 12345),
+		array('as.integer(12345)', self::TYPE_INT, 12345),
 		// integer vector
-		array('as.integer(c(34, 45, 34, 93, 604, 376, 2, 233456))', 'int', array(34,45,34,93,604,376,2, 233456)),
+		array('as.integer(c(34, 45, 34, 93, 604, 376, 2, 233456))', self::TYPE_INT, array(34,45,34,93,604,376,2, 233456)),
 		// numeric
-		array('c(34.2, 45.5, 987.2, 22.1, 87.0, 345.0, 1E-6, 1E38)', 'float', array(34.2, 45.5, 987.2, 22.1, 87.0, 345.0, 1E-6, 1E38)),
+		array('c(34.2, 45.5, 987.2, 22.1, 87.0, 345.0, 1E-6, 1E38)', self::TYPE_FLOAT, array(34.2, 45.5, 987.2, 22.1, 87.0, 345.0, 1E-6, 1E38)),
 		// character
-		array('"TOTO is TOTO"', 'string', 'TOTO is TOTO'),
+		array('"TOTO is TOTO"', self::TYPE_STRING, 'TOTO is TOTO'),
 		// character vector
-		array('c("TOTO is TOTO","Ohhhh","String2")', 'string', array("TOTO is TOTO","Ohhhh","String2")),
+		array('c("TOTO is TOTO","Ohhhh","String2")', self::TYPE_STRING, array("TOTO is TOTO","Ohhhh","String2")),
 
 		// pairlist
 		array('list("toto"=1,"titi"=2)',NULL, array('toto'=>1,'titi'=>2)),

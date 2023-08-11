@@ -2,24 +2,28 @@
 
 namespace Sentiweb\Rserve;
 
-require_once __DIR__ . '/config.php';
+use PHPUnit\Framework\TestCase;
+use Sentiweb\Rserve\Tests\BaseTest;
 
-class SessionTest extends \PHPUnit_Framework_TestCase {
+class SessionTest extends BaseTest
+{
 
-	public function testSession() {
-    if(!defined("RSERVE_HOST")) {
-      $this->markTestSkipped("rserve host not defined");
-    }
-		$cnx = new Connection(RSERVE_HOST);
+	public function testSession()
+	{
+		$cnx = $this->getConnection();
+		if(!$cnx) {
+			$this->markTestSkipped('skipping connection aware tests');
+			return;
+		}
 
 		// random id
 		$random = '';
-		for($i = 0; $i < 10; ++$i) {
+		for ($i = 0; $i < 10; ++$i) {
 			$random .= dechex(mt_rand());
 		}
 		$random_id = uniqid($random, TRUE);
 
-		$r = $cnx->evalString('x="'.$random_id.'"');
+		$r = $cnx->evalString('x="' . $random_id . '"');
 
 		$this->assertEquals($r, $random_id);
 
@@ -30,6 +34,5 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$x = $cnx->evalString('x');
 
 		$this->assertEquals($x, $random_id);
-
 	}
 }

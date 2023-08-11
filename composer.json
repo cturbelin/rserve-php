@@ -7,7 +7,7 @@
     "licence": "LGPL-2.1",
     "authors": [
         {
-            "name": "ClÃ©ment Turbelin",
+            "name": "Clément Turbelin",
             "email": "clement.turbelin@gmail.com"
         }
     ],
@@ -15,17 +15,20 @@
         "php": ">=7.4"
     },
     "require-dev": {
-       "phpunit/phpunit": "*",
-       "jakub-onderka/php-parallel-lint": "^0.9"
+       "phpunit/phpunit": "^9",
+        "symplify/easy-coding-standard": "^12.0"
     }, 
     "autoload": {
         "files": ["src/lib/helpers.php"],
         "psr-4": {
-            "Sentiweb\\Rserve\\": "src/"
+            "Sentiweb\\Rserve\\": "src/",
+            "Sentiweb\\Rserve\\Tests\\":"tests/"
         }
      },
      "autoload-dev": {
-        "psr-4" : { "Sentiweb\\Rserve\\" : "tests/" }
+        "psr-4" : { 
+            "Sentiweb\\Rserve\\Tests\\":"tests/" 
+        }
      },
      "scripts": {
        "test": [
@@ -34,4 +37,3 @@
        ]
     } 
 }
-
