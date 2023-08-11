@@ -16,12 +16,7 @@ class SessionTest extends BaseTest
 			return;
 		}
 
-		// random id
-		$random = '';
-		for ($i = 0; $i < 10; ++$i) {
-			$random .= dechex(mt_rand());
-		}
-		$random_id = uniqid($random, TRUE);
+		$random_id = $this->getRandomString();
 
 		$r = $cnx->evalString('x="' . $random_id . '"');
 

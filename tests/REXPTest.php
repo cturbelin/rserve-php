@@ -7,16 +7,19 @@ use PHPUnit\Framework\TestCase;
 
 use Sentiweb\Rserve\Serializer;
 use Sentiweb\Rserve\Parser\REXP as Parser_REXP;
+use Sentiweb\Rserve\REXP\Vector;
+use Sentiweb\Rserve\REXP\RList;
 
 class REXPTest extends TestCase
 {
 
-	private function create_REXP($values, $type, $options = array())
+	private function create_REXP($values, $type, $options = [])
 	{
 		$cn = 'Sentiweb\\Rserve\\REXP\\' . $type;
 		$r = new $cn();
-		if (is_subclass_of($r, 'Sentiweb\\Rserve\\REXP\\Vector')) {
-			if (is_subclass_of($r, 'Sentiweb\\Rserve\\REXP\\RList') and @$options['named']) {
+		if (is_subclass_of($r, Vector::class)) {
+			$named = $options['named'] ?? false;
+			if (is_subclass_of($r, RList::class) && $named) {
 				$r->setValues($values, true);
 			} else {
 				$r->setValues($values);
@@ -29,12 +32,12 @@ class REXPTest extends TestCase
 
 	public function providerTestParser()
 	{
-		return array(
-			array('Integer', array(1, 3, 7, 1129, 231923, 22)),
-			array('Double', array(1.234, 3.432, 4.283, M_PI)),
-			array('Logical', array(TRUE, FALSE, TRUE, TRUE, FALSE, NULL)),
-			array('RString', array('toto', 'Lorem ipsum dolor sit amet', '')),
-		);
+		return [
+			['Integer', [1, 3, 7, 1129, 231923, 22]], 
+			['Double', [1.234, 3.432, 4.283, M_PI]], 
+			['Logical', [true, false, true, true, false, null]], 
+			['RString', ['toto', 'Lorem ipsum dolor sit amet', '']]
+		];
 	}
 
 

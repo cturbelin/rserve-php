@@ -2,3 +2,5 @@
 .buildpath
 .settings
 vendor
+tests/BaseTest.php
+*.cache

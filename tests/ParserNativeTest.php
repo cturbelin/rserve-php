@@ -24,7 +24,7 @@ class ParserNativeTest extends BaseTest
 	 * @covers Rserve_Parser::parse
 	 * @covers Rserve_Connection::evalString
 	 */
-	public function testSimpleTypes($cmd, $type, $expected, $filters = NULL)
+	public function testSimpleTypes($cmd, $type, $expected, $filters = null)
 	{
 
 		$cnx = $this->getConnection();
@@ -32,7 +32,6 @@ class ParserNativeTest extends BaseTest
 			$this->markTestSkipped('skipping connection aware tests');
 			return;
 		}
-
 
 		$r = $cnx->evalString($cmd);
 		if (is_array($expected)) {
@@ -56,7 +55,7 @@ class ParserNativeTest extends BaseTest
 				if (!is_callable($f)) {
 					throw new Exception('Bad filter ' . $f . ' for ' . $key);
 				}
-				$params = array_merge(array($r[$key]), $filter);
+				$params = array_merge([$r[$key]], $filter);
 				$r[$key] = call_user_func_array($f, $params);
 			}
 		}
