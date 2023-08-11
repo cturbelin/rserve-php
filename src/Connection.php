@@ -84,7 +84,7 @@ class Connection {
 	private static $init = false;
 
 	private $host;
-	private $port;
+	private int $port;
 	private $socket;
 	private $auth_request;
 	private $auth_method;
@@ -130,7 +130,7 @@ class Connection {
 	 *  If
 	 *
 	 */
-	public function __construct($host=self::DEFAULT_HOST, $port = self::DEFAULT_PORT, $params=[]) {
+	public function __construct($host=self::DEFAULT_HOST, int $port = self::DEFAULT_PORT, $params=[]) {
 		if( !self::$init ) {
 			self::init();
 		}
@@ -138,11 +138,11 @@ class Connection {
 		if( is_array($host) ) {
 			$params = $host;
 			$this->host =  $params['host'] ?? self::DEFAULT_HOST;
-			$this->port =  $params['port'] ?? self::DEFAULT_PORT;
+			$this->port =  (int)($params['port'] ?? self::DEFAULT_PORT);
 			
  		} elseif(is_object($host) AND $host instanceof Session) {
 			$session = $host->key;
-			$this->port = $host->port;
+			$this->port = (int)$host->port;
 			$host = $host->host;
 			if( !$host ) {
 				$host = self::DEFAULT_HOST;
