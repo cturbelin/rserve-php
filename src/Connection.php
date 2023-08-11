@@ -134,7 +134,8 @@ class Connection {
 		if( !self::$init ) {
 			self::init();
 		}
-		
+		$session = null;
+
 		if( is_array($host) ) {
 			$params = $host;
 			$this->host =  $params['host'] ?? self::DEFAULT_HOST;
@@ -151,7 +152,6 @@ class Connection {
 		} else {
 			$this->host = $host;
 			$this->port = $port;
-			$session = null;
 		}
 		$this->debug =  (bool)($params['debug'] ?? false);
 		$this->async = (bool)($params['async'] ?? false);
@@ -559,9 +559,3 @@ class Connection {
 	}
 
 }
-
-
-
-
-
-
