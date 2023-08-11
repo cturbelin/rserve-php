@@ -69,7 +69,7 @@ class Factor extends Integer {
 		$lev = $this->getAttribute('levels');
 		if( $lev ) {
 			$lev = $lev->getValues();
-			$levels = array();
+			$levels = [];
 			$i = 0;
 			foreach($lev as $l) {
 				++$i;

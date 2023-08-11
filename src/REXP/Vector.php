@@ -55,7 +55,7 @@ class Vector extends REXP {
 		if( $dim ) {
 			return $dim->getValues();
 		}
-		return array($this->length()); 
+		return [$this->length()]; 
 	}
 	
 	/**

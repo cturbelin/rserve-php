@@ -58,7 +58,7 @@ class REXP extends Parser {
 				break;
 			
 			case self::XT_VECTOR : // generic vector
-				$v = array ();
+				$v = [];
 				while ( $i < $eoa ) {
 					$v [] = $this->parse( $buf, $i );
 				}
@@ -84,7 +84,7 @@ class REXP extends Parser {
 			
 			case self::XT_LIST_NOTAG :
 			case self::XT_LANG_NOTAG : // pairlist w/o tags
-				$v = array();
+				$v = [];
 				while ( $i < $eoa ) {
 					$v [] = $this->parse( $buf, $i );
 				}
@@ -94,8 +94,8 @@ class REXP extends Parser {
 			
 			case self::XT_LIST_TAG :
 			case self::XT_LANG_TAG : // pairlist with tags
-				$v = array();
-				$names = array();
+				$v = [];
+				$names = [];
 				while ( $i < $eoa ) {
 					$v[] = $this->parse( $buf, $i );
 					$names[] = $this->parse( $buf, $i );
@@ -106,7 +106,7 @@ class REXP extends Parser {
 				break;
 			
 			case self::XT_ARRAY_INT : // integer array
-				$v = array ();
+				$v = [];
 				while ( $i < $eoa ) {
 					$v [] = _rserve_int32( $r, $i );
 					$i += 4;
@@ -122,7 +122,7 @@ class REXP extends Parser {
 				break;
 			
 			case self::XT_ARRAY_DOUBLE : // double array
-				$v = array ();
+				$v = [];
 				while ( $i < $eoa ) {
 					$v [] = _rserve_flt64( $r, $i );
 					$i += 8;
@@ -132,7 +132,7 @@ class REXP extends Parser {
 				break;
 			
 			case self::XT_ARRAY_STR : // string array
-				$v = array();
+				$v = [];
 				$oi = $i;
 				while ( $i < $eoa ) {
 					if ( ord( $r[$i] ) == 0) {
@@ -154,7 +154,7 @@ class REXP extends Parser {
 				$n = _rserve_int32( $r, $i );
 				$i += 4;
 				$k = 0;
-				$vv = array();
+				$vv = [];
 				while ( $k < $n ) {
 					$v = _rserve_int8( $r, $i ++ );
 					$vv[$k] = ($v == 1) ? true : (($v == 0) ? false : null);
@@ -173,13 +173,13 @@ class REXP extends Parser {
 				break;
 			
 			case self::XT_ARRAY_CPLX :
-				$v = array();
+				$v = [];
 				while ( $i < $eoa ) {
 					$real = _rserve_flt64( $r, $i );
 					$i += 8;
 					$im = _rserve_flt64( $r, $i );
 					$i += 8;
-					$v [] = array ($real, $im);
+					$v [] = [$real, $im];
 				}
 				$a = new Complex();
 				$a->setValues( $v );

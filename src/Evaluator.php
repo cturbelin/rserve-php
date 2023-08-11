@@ -51,7 +51,7 @@ class Evaluator {
 				return null; // no need to create parser
 			}
 			if($parser == self::PARSER_WRAPPED) {
-				return new NativeArray(array('wrapper'=>true));
+				return new NativeArray(['wrapper'=>true]);
 			}
 			if($parser == self::PARSER_REXP) {
 				return new REXP();

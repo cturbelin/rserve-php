@@ -11,7 +11,7 @@ class NativeArray extends Parser {
 	
 	protected $factor_as_string;
 	
-	public function __construct($options=array()) {
+	public function __construct($options=[]) {
 		$this->use_wrapper = isset($options['wrapper']) ? $options['wrapper'] : false;
 		$this->factor_as_string = isset($options['factor_as_string']) ? (bool)$options['factor_as_string'] : true;
 	}
@@ -52,7 +52,7 @@ class NativeArray extends Parser {
 				$a = null;
 				break;
 			case self::XT_VECTOR: // generic vector
-				$a = array();
+				$a = [];
 				while ($i < $eoa) {
 					$a[] = $this->parse($buf, $i);
 				}
@@ -61,7 +61,7 @@ class NativeArray extends Parser {
 				if ( isset($attr['names']) ) {
 					$names = $attr['names'];
 					if(is_string($names)) {
-						$names = array($names);
+						$names = [$names];
 					}
 					$a = array_combine($names, $a);
 					
@@ -94,7 +94,7 @@ class NativeArray extends Parser {
 	
 			case self::XT_LANG_NOTAG:
 			case self::XT_LIST_NOTAG : // pairlist w/o tags
-				$a = array();
+				$a = [];
 				while ($i < $eoa) {
 					$a[] = $this->parse($buf, $i);
 				}
@@ -103,7 +103,7 @@ class NativeArray extends Parser {
 			case self::XT_LIST_TAG:
 			case self::XT_LANG_TAG:
 				// pairlist with tags
-				$a = array();
+				$a = [];
 				while ($i < $eoa) {
 					$val = $this->parse($buf, $i);
 					$tag = $this->parse($buf, $i);
@@ -112,7 +112,7 @@ class NativeArray extends Parser {
 				break;
 	
 			case self::XT_ARRAY_INT: // integer array
-				$a = array();
+				$a = [];
 				while ($i < $eoa) {
 					$a[] = _rserve_int32($r, $i);
 					$i += 4;
@@ -156,7 +156,7 @@ class NativeArray extends Parser {
 				break;
 	
 			case self::XT_ARRAY_DOUBLE:// double array
-				$a = array();
+				$a = [];
 				while ($i < $eoa) {
 					$a[] = _rserve_flt64($r, $i);
 					$i += 8;
@@ -167,7 +167,7 @@ class NativeArray extends Parser {
 				break;
 	
 			case self::XT_ARRAY_STR: // string array
-				$a = array();
+				$a = [];
 				$oi = $i;
 				while ($i < $eoa) {
 					if (ord($r[$i]) == 0) {
@@ -185,7 +185,7 @@ class NativeArray extends Parser {
 				$n = _rserve_int32($r, $i);
 				$i += 4;
 				$k = 0;
-				$a = array();
+				$a = [];
 				while ($k < $n) {
 					$v = _rserve_int8($r, $i++);
 					$a[$k++] = ($v == 1) ? true : (($v == 0) ? false : null);
@@ -203,8 +203,8 @@ class NativeArray extends Parser {
 	
 			case self::XT_ARRAY_CPLX:
 				// real part
-				$real = array();
-				$im = array();
+				$real = [];
+				$im = [];
 				while ($i < $eoa) {
 					$real[] = _rserve_flt64($r, $i);
 					$i += 8;
@@ -212,9 +212,9 @@ class NativeArray extends Parser {
 					$i += 8;
 				}
 				if (count($real) == 1) {
-					$a = array($real[0], $im[0]);
+					$a = [$real[0], $im[0]];
 				} else {
-					$a = array($real, $im);
+					$a = [$real, $im];
 				}
 				break;
 	

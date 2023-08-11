@@ -389,13 +389,13 @@ class Connection {
 			}
 		}
 		$res = _rserve_int32($header);
-		return(array(
-			'code'=>$res,
-			'is_error'=>($res & 15) != 1,
-			'error'=>($res >> 24) & 127,
-			'header'=>$header,
-			'contents'=>$buf // Buffer contains messages part
-		));
+		return([
+			'code'=>$res, 
+			'is_error'=>($res & 15) != 1, 
+			'error'=>($res >> 24) & 127, 
+			'header'=>$header, 
+			'contents'=>$buf
+		]);
 	}
 
 	/**

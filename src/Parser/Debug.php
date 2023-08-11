@@ -32,7 +32,7 @@ class Debug extends Parser {
 		
 		$offset = $eoa = $i + $rl;
 		
-		$result = array ();
+		$result = [];
 		
 		$result ['type'] = self::xtName ( $ra & 63 );
 		$result ['length'] = $rl;
@@ -54,7 +54,7 @@ class Debug extends Parser {
 			return $result;
 		}
 		if ($ra == self::XT_VECTOR) { // generic vector
-			$a = array ();
+			$a = [];
 			while ( $i < $eoa ) {
 				$a [] = $this->parse ( $buf, $i );
 			}
@@ -68,13 +68,13 @@ class Debug extends Parser {
 			$result ['contents'] = substr ( $buf, $oi, $i - $oi );
 		}
 		if ($ra == self::XT_LIST_NOTAG || $ra == self::XT_LANG_NOTAG) { // pairlist w/o tags
-			$a = array ();
+			$a = [];
 			while ( $i < $eoa )
 				$a [] = $this->parse ( $buf, $i );
 			$result ['contents'] = $a;
 		}
 		if ($ra == self::XT_LIST_TAG || $ra == self::XT_LANG_TAG) { // pairlist with tags
-			$a = array ();
+			$a = [];
 			while ( $i < $eoa ) {
 				$val = $this->parse ( $buf, $i );
 				$tag = $this->parse( $buf, $i );
@@ -83,7 +83,7 @@ class Debug extends Parser {
 			$result ['contents'] = $a;
 		}
 		if ($ra == self::XT_ARRAY_INT) { // integer array
-			$a = array ();
+			$a = [];
 			while ( $i < $eoa ) {
 				$a [] = _rserve_int32 ( $r, $i );
 				$i += 4;
@@ -94,7 +94,7 @@ class Debug extends Parser {
 			$result ['contents'] = $a;
 		}
 		if ($ra == self::XT_ARRAY_DOUBLE) { // double array
-			$a = array ();
+			$a = [];
 			while ( $i < $eoa ) {
 				$a [] = _rserve_flt64 ( $r, $i );
 				$i += 8;
@@ -105,7 +105,7 @@ class Debug extends Parser {
 			$result ['contents'] = $a;
 		}
 		if ($ra == self::XT_ARRAY_STR) { // string array
-			$a = array ();
+			$a = [];
 			$oi = $i;
 			while ( $i < $eoa ) {
 				if (ord ( $r [$i] ) == 0) {
@@ -124,7 +124,7 @@ class Debug extends Parser {
 			$result ['size'] = $n;
 			$i += 4;
 			$k = 0;
-			$a = array ();
+			$a = [];
 			while ( $k < $n ) {
 				$v = _rserve_int8 ( $r, $i ++ );
 				$a [$k] = ($v === 1) ? true : (($v === 0) ? false : null);
@@ -142,8 +142,8 @@ class Debug extends Parser {
 			$result ['contents'] = substr ( $r, $i, $len );
 		}
 		if ($ra == self::XT_ARRAY_CPLX) {
-			$real = array ();
-			$im = array ();
+			$real = [];
+			$im = [];
 			while ( $i < $eoa ) {
 				$real [] = _rserve_flt64 ( $r, $i );
 				$i += 8;
@@ -151,15 +151,9 @@ class Debug extends Parser {
 				$i += 8;
 			}
 			if (count ( $real ) == 1) {
-				$a = array (
-						$real [0],
-						$im [0] 
-				);
+				$a = [$real [0], $im [0]];
 			} else {
-				$a = array (
-						$real,
-						$im 
-				);
+				$a = [$real, $im];
 			}
 			$result ['contents'] = $a;
 		}

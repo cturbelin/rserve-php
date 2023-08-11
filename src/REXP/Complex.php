@@ -17,7 +17,7 @@ class Complex extends Vector {
 			}
 			return null;
 		}
-		$r = array();
+		$r = [];
 		foreach($this->values as $v) {
 			$r[] = $v[$part];
 		}
