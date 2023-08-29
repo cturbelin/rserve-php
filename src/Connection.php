@@ -300,7 +300,80 @@ class Connection {
 			return true;
 		}
 		throw new Exception( "Could not login" );
-	}
+    }
+
+    /**
+     * createFile
+     *
+     * Create a file on the Rserver from the provided resource (fopen)
+     * The file name on the server should not contain a path
+     *
+     * @param resource $clientResource Resource to read from
+     * @param string $serverFile Filename with no path
+     */
+    public function createFile($clientResource,$serverFile)
+    {
+        $data = _rserve_make_data(self::DT_STRING, $serverFile);
+        $r = $this->sendCommand(self::CMD_createFile, $data);
+
+        if ( !$r['is_error'] ) {
+            while (!feof($clientResource)) {
+                $chunk = fread($clientResource, 8192);
+                $data = _rserve_make_data(self::DT_BYTESTREAM, $chunk);
+                $r = $this->sendCommand(self::CMD_writeFile, $data);
+                if ( $r['is_error'] ) {
+                    throw new Exception( "Unable to write to server ", $r);
+                    return;
+                }
+            }
+            fclose($clientResource);
+            $data = _rserve_make_data(self::DT_STRING, "");
+            $r = $this->sendCommand(self::CMD_closeFile, $data);
+            if ( $r['is_error'] ) {
+                throw new Exception( "Unable to close file on server", $r);
+            }
+            return;
+        }
+        throw new Exception('unable to create file on server', $r);
+    }
+
+    /**
+     * openFile
+     *
+     * Read a a file from the Rserver to the provided resource (fopen)
+     * The file name on the server should not contain a path
+     *
+     * @param resource $clientResource Resource to write to
+     * @param string $serverFile Filename with no path
+     */
+    public function openFile($clientResource,$serverFile)
+    {
+        $data = _rserve_make_data(self::DT_STRING, $serverFile);
+        $r = $this->sendCommand(self::CMD_openFile, $data);
+
+        if ( !$r['is_error'] ) {
+
+            do {
+                $data = _rserve_make_data(self::DT_INT, 8192);
+                $r = $this->sendCommand(self::CMD_readFile, $data);
+                if ( $r['is_error'] ) {
+                    throw new Exception( "Unable to read from server ", $r);
+                    return;
+                }
+                fwrite($clientResource,$r['contents']);
+            } while ($r['contents'] != "");
+
+            fclose($clientResource);
+            $data = _rserve_make_data(self::DT_STRING, "");
+            $r = $this->sendCommand(self::CMD_closeFile, $data);
+            if ( $r['is_error'] ) {
+                throw new Exception( "Unable to close file on server", $r);
+            }
+            return;
+        }
+        throw new Exception('unable to open file on server', $r);
+ 
+    }
 
 	/**
 	 * Evaluate a string as an R code and return result
